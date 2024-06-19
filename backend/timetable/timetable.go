@@ -11,6 +11,27 @@ var table map[string]map[string]map[string][][]string
 var scheduleTeacher map[string]map[string]map[string][][]interface{}
 var weeks map[string]string
 var crutches = map[float64]string{1.0: "1", 2.0: "2", 3.0: "3", 4.0: "4", 5.0: "5", 6.0: "6", 7.0: "7", 8.0: "8"}
+var Teachers []string
+
+var dictDaysOfWeek = map[string]string{
+	"Monday":    "0",
+	"Tuesday":   "1",
+	"Wednesday": "2",
+	"Thursday":  "3",
+	"Friday":    "4",
+	"Saturday":  "0",
+	"Sunday":    "0",
+}
+
+var dictDaysOfWeekTomorrow = map[string]string{
+	"Monday":    "1",
+	"Tuesday":   "2",
+	"Wednesday": "3",
+	"Thursday":  "4",
+	"Friday":    "0",
+	"Saturday":  "0",
+	"Sunday":    "0",
+}
 
 func init() {
 	data, err := os.ReadFile("data/dict.json")
@@ -31,13 +52,17 @@ func init() {
 		fmt.Println("Ошибка парсинга JSON (учителя):", err)
 	}
 
-	dataWeeks, err := os.ReadFile("data/weeks.json")
+	dataWeeks, err := os.ReadFile("data/testWeeks.json")
 	if err != nil {
 		fmt.Println("Ошибка чтения файла (недели):", err)
 	}
 	err = json.Unmarshal(dataWeeks, &weeks)
 	if err != nil {
 		fmt.Println("Ошибка парсинга JSON (недели):", err)
+	}
+
+	for i := range scheduleTeacher["0"] {
+		Teachers = append(Teachers, i)
 	}
 }
 
@@ -87,6 +112,61 @@ func GetTimetableTeachersText(name, week, day string) ([][]string, error) {
 	return stringSlice, nil
 }
 
-func GetWeek() string {
-	return time.Now().Format("2006-01-02")
+// GetWeek первый параметр хз зачем, второй (true) если надо вернуть сразу число
+func GetWeek(flag, res bool) (string, error) {
+	date := time.Now()
+	if !flag {
+		if date.Weekday() == time.Saturday {
+			date = date.AddDate(0, 0, 1)
+		} else if date.Weekday() == time.Friday {
+			date = date.AddDate(0, 0, 2)
+		}
+	} else {
+		if date.Weekday() > time.Friday {
+			date = date.AddDate(0, 0, -3)
+		}
+	}
+
+	dateString := date.Format("2006-01-02")
+	week, exists := weeks[dateString]
+	if !exists {
+		return "", fmt.Errorf("неделя не найдена для даты: %s", dateString)
+	}
+	if res {
+		if week == "н" {
+			return "1", nil
+		}
+		return "0", nil
+	}
+	return week, nil
+}
+
+func GetNextWeek() (string, error) {
+	date := time.Now()
+	if date.Weekday() == time.Saturday {
+		date = date.AddDate(0, 0, 1)
+	} else if date.Weekday() == time.Friday {
+		date = date.AddDate(0, 0, 2)
+	} else if date.Weekday() == time.Thursday {
+		date = date.AddDate(0, 0, 3)
+	}
+
+	dateString := date.Format("2006-01-02")
+	week, exists := weeks[dateString]
+	if !exists {
+		return "", fmt.Errorf("неделя не найдена для даты: %s", dateString)
+	}
+	return week, nil
+}
+
+func GetDayToday() string {
+	date := time.Now()
+	if date.Hour() > 12 || (date.Hour() == 12 && date.Minute() >= 30) {
+		date = date.AddDate(0, 0, 1)
+	}
+	return dictDaysOfWeek[date.Weekday().String()]
+}
+
+func GetDayTomorrow() string {
+	return dictDaysOfWeekTomorrow[time.Now().Weekday().String()]
 }

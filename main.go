@@ -12,19 +12,6 @@ import (
 
 var Bot = bot.Bot
 
-var numericKeyboard = tgbotapi.NewInlineKeyboardMarkup(
-	tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonURL("1.com", "http://github.com"),
-		tgbotapi.NewInlineKeyboardButtonData("2", "2"),
-		tgbotapi.NewInlineKeyboardButtonData("3", "3"),
-	),
-	tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonData("4", "4"),
-		tgbotapi.NewInlineKeyboardButtonData("5", "5"),
-		tgbotapi.NewInlineKeyboardButtonData("6", "6"),
-	),
-)
-
 func main() {
 	//Bot.Debug = true
 
@@ -48,6 +35,12 @@ func main() {
 					handler.Time(message)
 				case "/days":
 					handler.Days(message)
+				case "/schedule":
+					handler.Schedule(message, true)
+				case "/tomorrow":
+					handler.Schedule(message, false)
+				case "/week":
+					handler.Week(message, false)
 				default:
 					tgbotapi.NewMessage(message.Chat.ID, message.Text)
 				}
@@ -58,6 +51,10 @@ func main() {
 					switch lstQ[1] {
 					case "days":
 						handler.DaysHandler(query.From.ID, lstQ[2], lstQ[3])
+					case "who":
+						handler.WhoAreYouHandler(query.Message.Chat.ID, query.Message.MessageID, lstQ[2])
+					case "choice":
+						handler.ChoiceTimetableHandler(query.Message.Chat.ID, query.Message.MessageID, lstQ[3], lstQ[2])
 					}
 				}
 			}

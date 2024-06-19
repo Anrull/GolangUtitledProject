@@ -31,3 +31,7 @@ var TimetableTime = `<b>Расписание звонков</b> ⏰:
 `
 
 var ListDays = []string{"пн", "вт", "ср", "чт", "пт"}
+var Stages = []string{"11B", "11A", "10B", "10A", "9B", "9A", "8B", "8A", "7C", "7B", "7A", "6B", "6A"}
+
+var Week = map[string]string{"0": "чет", "1": "нечет"}
+var Day = map[string]string{"0": "пн", "1": "вт", "2": "ср", "3": "чт", "4": "пт"}

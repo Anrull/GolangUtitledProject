@@ -108,9 +108,9 @@ func GetInfoAboutPerson(userID uint) (User, error) {
 	return user, nil
 }
 
-func Update(message tgbotapi.Message, column, value string) error {
+func Update(ChatID int64, column, value string) error {
 	var user User
-	result := DB.First(&user, "user_id = ?", message.Chat.ID)
+	result := DB.First(&user, "user_id = ?", ChatID)
 	if result.Error != nil {
 		return result.Error
 	}

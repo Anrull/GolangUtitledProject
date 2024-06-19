@@ -2,6 +2,7 @@ package bot_timetable
 
 import (
 	"awesomeProject/backend/timetable"
+	"awesomeProject/bot/callbacks"
 	"awesomeProject/data/db"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -11,6 +12,26 @@ import (
 
 var days = map[string]string{"0": "пн", "1": "вт", "2": "ср", "3": "чт", "4": "пт"}
 var weeks = map[string]string{"0": "чет", "1": "нечет"}
+
+func WhoAreYouHandler(ChatId int64, msgId int, role string) {
+	err := db.Update(ChatId, "role", role)
+	if err != nil {
+		log.Println(err)
+		Bot.Send(tgbotapi.NewMessage(ChatId, "Ошибка связи с db"))
+		return
+	}
+	var msg tgbotapi.EditMessageTextConfig
+	if role == "student" {
+		//tgbotapi.NewEditMessageText(ChatId, msgId, "Выберите класс")
+		//msg.ReplyMarkup = callbacks.BuilderChoiceStage
+		msg = tgbotapi.NewEditMessageTextAndMarkup(ChatId, msgId, "Кто именно?", callbacks.BuilderChoiceStage)
+	} else if role == "teacher" {
+		//tgbotapi.NewEditMessageText(ChatId, msgId, "Кто именно?")
+		msg = tgbotapi.NewEditMessageTextAndMarkup(ChatId, msgId, "Кто именно?", callbacks.BuilderChoiceTeacher)
+		//msg.ReplyMarkup = callbacks.BuilderChoiceTeacher
+	}
+	Bot.Send(msg)
+}
 
 func DaysHandler(ChatID int64, week, day string) {
 	role, err := db.Get(ChatID, "role")
@@ -44,14 +65,31 @@ func DaysHandler(ChatID int64, week, day string) {
 		timetable.DrawTimetable(schedule,
 			fmt.Sprintf("%s, нед: %s, день: %s", name, weeks[week], days[day]), true, n)
 	}
-	photoBytes, err := os.ReadFile(filename)
-	if err != nil {
-		log.Fatal(err)
+	sendPhoto(ChatID, filename)
+}
+
+func ChoiceTimetableHandler(ChatId int64, msgId int, param, role string) {
+	var msg = tgbotapi.EditMessageTextConfig{}
+	var err error
+	if role == "student" {
+		err = db.Update(ChatId, "classes", param)
+	} else {
+		err = db.Update(ChatId, "name_teacher", param)
 	}
-	Bot.Send(tgbotapi.NewPhoto(ChatID, tgbotapi.FileBytes{
-		Name:  "photo.jpg",
-		Bytes: photoBytes,
-	}))
+	if err != nil {
+		Bot.Send(tgbotapi.NewMessage(ChatId, "Ошибка связи с db"))
+		log.Println(err)
+		return
+	}
+
+	if role == "student" {
+		msg = tgbotapi.NewEditMessageText(
+			ChatId, msgId, fmt.Sprintf("Принято, ученик %s класса", param))
+	} else {
+		msg = tgbotapi.NewEditMessageText(
+			ChatId, msgId, fmt.Sprintf("Принято, %s", param))
+	}
+	Bot.Send(msg)
 }
 
 func count(path string) (int, error) {
