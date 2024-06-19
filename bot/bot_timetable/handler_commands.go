@@ -21,7 +21,8 @@ func Start(message *tgbotapi.Message) {
 		return
 	}
 	msg := tgbotapi.NewMessage(message.Chat.ID, "Добро пожаловать в новую версию бота, написанную на языке программирования Golang!")
-	msg.ReplyMarkup = callbacks.BuilderWhoAreYou
+	//msg.ReplyMarkup = callbacks.BuilderWhoAreYou
+	msg.ReplyMarkup = callbacks.BuilderOlimpsKeyboard
 	Bot.Send(msg)
 }
 
