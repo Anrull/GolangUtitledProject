@@ -3,7 +3,8 @@ package main
 import (
 	"awesomeProject/bot"
 	handler "awesomeProject/bot/bot_timetable"
-
+	trackerHandler "awesomeProject/bot/bot_tracker"
+	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
 	"log"
@@ -55,6 +56,14 @@ func main() {
 						handler.WhoAreYouHandler(query.Message.Chat.ID, query.Message.MessageID, lstQ[2])
 					case "choice":
 						handler.ChoiceTimetableHandler(query.Message.Chat.ID, query.Message.MessageID, lstQ[3], lstQ[2])
+					}
+				} else if lstQ[0] == "tracker" {
+					fmt.Println(lstQ)
+					switch lstQ[2] {
+					case "olimp":
+						//fmt.Println("work")
+						trackerHandler.OlimpsCallbacksHandler(query.Message, lstQ[3], lstQ[4], lstQ[5], lstQ[6])
+
 					}
 				}
 			}

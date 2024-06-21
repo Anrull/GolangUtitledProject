@@ -29,31 +29,31 @@ var BuilderGetOlimpsKeyboard tgbotapi.InlineKeyboardMarkup
 var BuilderDeleteOlimpsKeyboard tgbotapi.InlineKeyboardMarkup
 
 func init() {
-	BuilderSubjectsForTreker, SortBuilderSubjectsKeyboard, BuilderDeleteSubjectsForTreker = buttons("sub", lexicon.SubjectsForButton, 2)
+	BuilderSubjectsForTreker, SortBuilderSubjectsKeyboard, BuilderDeleteSubjectsForTreker = buttons("sub", "", lexicon.SubjectsForButton, 2, 1)
 	// ......... \\
-	BuilderStageKeyboards, SortBuilderStageKeyboard, BuilderDeleteStageKeyboards = buttons("stage", lexicon.StagesTracker, 2)
+	BuilderStageKeyboards, SortBuilderStageKeyboard, BuilderDeleteStageKeyboards = buttons("stage", "", lexicon.StagesTracker, 2, 1)
 	// ......... \\
-	BuilderTeacherKeyboards, BuilderGetTeacherKeyboard, BuilderDeleteTeacherKeyboard = buttons("teacher", lexicon.TeacherTracker, 3)
+	BuilderTeacherKeyboards, BuilderGetTeacherKeyboard, BuilderDeleteTeacherKeyboard = buttons("teacher", "", lexicon.TeacherTracker, 3, 1)
 	// ......... \\
-	BuilderOlimpsKeyboard, BuilderGetOlimpsKeyboard, BuilderDeleteOlimpsKeyboard = buttons("olimp", lexicon.TrackerOlimps, 1)
+	BuilderOlimpsKeyboard, BuilderGetOlimpsKeyboard, BuilderDeleteOlimpsKeyboard = buttons("olimp", ";nil;nil;nil", lexicon.TrackerOlimps, 1, 0)
 }
 
-func buttons(data string, slice []string, step int) (tgbotapi.InlineKeyboardMarkup, tgbotapi.InlineKeyboardMarkup, tgbotapi.InlineKeyboardMarkup) {
+func buttons(data, subData string, slice []string, step, minParam int) (tgbotapi.InlineKeyboardMarkup, tgbotapi.InlineKeyboardMarkup, tgbotapi.InlineKeyboardMarkup) {
 	slice0, slice1, slice2 := [][]tgbotapi.InlineKeyboardButton{}, [][]tgbotapi.InlineKeyboardButton{}, [][]tgbotapi.InlineKeyboardButton{}
 	slice00, slice11, slice22 := []tgbotapi.InlineKeyboardButton{}, []tgbotapi.InlineKeyboardButton{}, []tgbotapi.InlineKeyboardButton{}
 	for i := range slice {
-		if i%step == 0 && i > 1 {
+		if i%step == 0 && i > minParam {
 			slice0 = append(slice0, slice00)
 			slice1 = append(slice1, slice11)
 			slice2 = append(slice2, slice22)
 			slice00, slice11, slice22 = []tgbotapi.InlineKeyboardButton{}, []tgbotapi.InlineKeyboardButton{}, []tgbotapi.InlineKeyboardButton{}
 		}
 		slice00 = append(slice00, tgbotapi.NewInlineKeyboardButtonData(
-			slice[i], fmt.Sprintf("tracker;add;%s;%d", data, i)))
+			slice[i], fmt.Sprintf("tracker;add;%s;%d%s", data, i, subData)))
 		slice11 = append(slice11, tgbotapi.NewInlineKeyboardButtonData(
-			slice[i], fmt.Sprintf("tracker;get;%s;%d", data, i)))
+			slice[i], fmt.Sprintf("tracker;get;%s;%d%s", data, i, subData)))
 		slice22 = append(slice22, tgbotapi.NewInlineKeyboardButtonData(
-			slice[i], fmt.Sprintf("tracker;delete;%s;%d", data, i)))
+			slice[i], fmt.Sprintf("tracker;delete;%s;%d%s", data, i, subData)))
 	}
 	builder1 := tgbotapi.NewInlineKeyboardMarkup(slice0...)
 	builder2 := tgbotapi.NewInlineKeyboardMarkup(slice1...)

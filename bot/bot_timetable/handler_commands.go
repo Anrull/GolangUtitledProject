@@ -22,7 +22,18 @@ func Start(message *tgbotapi.Message) {
 	}
 	msg := tgbotapi.NewMessage(message.Chat.ID, "Добро пожаловать в новую версию бота, написанную на языке программирования Golang!")
 	//msg.ReplyMarkup = callbacks.BuilderWhoAreYou
-	msg.ReplyMarkup = callbacks.BuilderOlimpsKeyboard
+	will := tgbotapi.InlineKeyboardMarkup{}
+	//will.InlineKeyboard = callbacks.BuilderOlimpsKeyboard.InlineKeyboard
+	willCopy_ := make([][]tgbotapi.InlineKeyboardButton, len(callbacks.BuilderOlimpsKeyboard.InlineKeyboard))
+	copy(willCopy_, callbacks.BuilderOlimpsKeyboard.InlineKeyboard)
+	will.InlineKeyboard = willCopy_[:lexicon.OlimpListStep]
+	//will.InlineKeyboard = callbacks.BuilderOlimpsKeyboard.InlineKeyboard[:lexicon.OlimpListStep]
+	will.InlineKeyboard = append(will.InlineKeyboard, tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData(
+			lexicon.OlimpListLeft, fmt.Sprintf("tracker;add;olimp;nil;0;%d;min", len(callbacks.BuilderOlimpsKeyboard.InlineKeyboard))),
+		tgbotapi.NewInlineKeyboardButtonData(
+			lexicon.OlimpListRight, fmt.Sprintf("tracker;add;olimp;nil;0;%d;plus", len(callbacks.BuilderOlimpsKeyboard.InlineKeyboard)))))
+	msg.ReplyMarkup = will
 	Bot.Send(msg)
 }
 
@@ -115,6 +126,6 @@ func sendPhoto(ChatID int64, filename string) {
 func logging(message *tgbotapi.Message, err error) {
 	if err != nil {
 		log.Println(err)
-		Bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Ошибка свзи с db"))
+		Bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Ошибка связи с db"))
 	}
 }

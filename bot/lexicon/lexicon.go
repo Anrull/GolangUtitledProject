@@ -1,5 +1,11 @@
 package lexicon
 
+var (
+	OlimpListStep  = 10
+	OlimpListLeft  = "⬅️"
+	OlimpListRight = "➡️"
+)
+
 var HelpMessage = `Это бот-расписание для БЛИ № 3
 Команды для бота-расписания:
 ♦️ /schedule - узнать расписание
