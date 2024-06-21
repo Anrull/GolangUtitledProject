@@ -12,13 +12,14 @@ var DB, _ = gorm.Open(sqlite.Open("data/db/users.db"), &gorm.Config{})
 
 type User struct {
 	gorm.Model
-	UserID      uint   `gorm:"column:user_id"`
+	UserID      int64  `gorm:"column:user_id"`
 	Name        string `gorm:"column:name"`
 	Username    string `gorm:"column:username"`
 	Classes     string `gorm:"column:classes;default=''"`
 	Role        string `gorm:"column:role;default=''"`
 	NameTeacher string `gorm:"column:name_teacher;default=''"`
 	Newsletter  string `gorm:"column:newsletter;default='1'"`
+	Temp        string `gorm:"column:temp;default=''"`
 	Bot         string `gorm:"column:bot;default=''"`
 	LastIDs     string `gorm:"column:last_ids;default=''"`
 }
@@ -41,7 +42,7 @@ func NewUser(message tgbotapi.Message) error {
 		return DB.Save(&user).Error
 	} else if result.Error == gorm.ErrRecordNotFound { // Пользователь не найден, создаем нового
 		newUser := User{
-			UserID:     uint(userID),
+			UserID:     userID,
 			Name:       name,
 			Username:   username,
 			Bot:        "bot-schedule",
@@ -77,6 +78,8 @@ func Get(ChatID int64, column string) (string, error) {
 		res = user.Username
 	case "name_teacher":
 		res = user.NameTeacher
+	case "temp":
+		res = user.Temp
 	}
 	return res, nil
 }
@@ -99,7 +102,7 @@ func GetAllUsers() ([]User, error) {
 	return users, nil
 }
 
-func GetInfoAboutPerson(userID uint) (User, error) {
+func GetInfoAboutPerson(userID int64) (User, error) {
 	var user User
 	result := DB.First(&user, "user_id = ?", userID)
 	if result.Error != nil {
@@ -132,6 +135,8 @@ func Update(ChatID int64, column, value string) error {
 		user.Username = value
 	case "name_teacher":
 		user.NameTeacher = value
+	case "temp":
+		user.Temp = value
 	}
 	return DB.Save(&user).Error
 }

@@ -22,18 +22,19 @@ func Start(message *tgbotapi.Message) {
 	}
 	msg := tgbotapi.NewMessage(message.Chat.ID, "Добро пожаловать в новую версию бота, написанную на языке программирования Golang!")
 	//msg.ReplyMarkup = callbacks.BuilderWhoAreYou
-	will := tgbotapi.InlineKeyboardMarkup{}
-	//will.InlineKeyboard = callbacks.BuilderOlimpsKeyboard.InlineKeyboard
-	willCopy_ := make([][]tgbotapi.InlineKeyboardButton, len(callbacks.BuilderOlimpsKeyboard.InlineKeyboard))
-	copy(willCopy_, callbacks.BuilderOlimpsKeyboard.InlineKeyboard)
-	will.InlineKeyboard = willCopy_[:lexicon.OlimpListStep]
-	//will.InlineKeyboard = callbacks.BuilderOlimpsKeyboard.InlineKeyboard[:lexicon.OlimpListStep]
-	will.InlineKeyboard = append(will.InlineKeyboard, tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonData(
-			lexicon.OlimpListLeft, fmt.Sprintf("tracker;add;olimp;nil;0;%d;min", len(callbacks.BuilderOlimpsKeyboard.InlineKeyboard))),
-		tgbotapi.NewInlineKeyboardButtonData(
-			lexicon.OlimpListRight, fmt.Sprintf("tracker;add;olimp;nil;0;%d;plus", len(callbacks.BuilderOlimpsKeyboard.InlineKeyboard)))))
-	msg.ReplyMarkup = will
+	//will := tgbotapi.InlineKeyboardMarkup{}
+	////will.InlineKeyboard = callbacks.BuilderOlimpsKeyboard.InlineKeyboard
+	//willCopy_ := make([][]tgbotapi.InlineKeyboardButton, len(callbacks.BuilderOlimpsKeyboard.InlineKeyboard))
+	//copy(willCopy_, callbacks.BuilderOlimpsKeyboard.InlineKeyboard)
+	//will.InlineKeyboard = willCopy_[:lexicon.OlimpListStep]
+	////will.InlineKeyboard = callbacks.BuilderOlimpsKeyboard.InlineKeyboard[:lexicon.OlimpListStep]
+	//will.InlineKeyboard = append(will.InlineKeyboard, tgbotapi.NewInlineKeyboardRow(
+	//	tgbotapi.NewInlineKeyboardButtonData(
+	//		lexicon.OlimpListLeft, fmt.Sprintf("tracker;add;olimp;nil;0;%d;min", len(callbacks.BuilderOlimpsKeyboard.InlineKeyboard))),
+	//	tgbotapi.NewInlineKeyboardButtonData(
+	//		lexicon.OlimpListRight, fmt.Sprintf("tracker;add;olimp;nil;0;%d;plus", len(callbacks.BuilderOlimpsKeyboard.InlineKeyboard)))))
+	//msg.ReplyMarkup = will
+	msg.ReplyMarkup = callbacks.BuilderChoiceBot
 	Bot.Send(msg)
 }
 

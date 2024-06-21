@@ -117,9 +117,9 @@ func GetWeek(flag, res bool) (string, error) {
 	date := time.Now()
 	if !flag {
 		if date.Weekday() == time.Saturday {
-			date = date.AddDate(0, 0, 1)
-		} else if date.Weekday() == time.Friday {
 			date = date.AddDate(0, 0, 2)
+		} else if date.Weekday() == time.Friday {
+			date = date.AddDate(0, 0, 3)
 		}
 	} else {
 		if date.Weekday() > time.Friday {
