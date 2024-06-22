@@ -34,13 +34,37 @@ func AddTracker(message *tgbotapi.Message, column, value string) error {
 	case "delete_olimps":
 		tracker.DeleteOlimps = value
 	case "olimps":
-		if tracker.Olimps == "" {
-			tracker.Olimps = value
+		if value != "" {
+			if tracker.Olimps == "" {
+				tracker.Olimps = value
+			} else {
+				tracker.Olimps = tracker.Olimps + ";" + value
+			}
 		} else {
-			tracker.Olimps = tracker.Olimps + ";" + value
+			tracker.Olimps = ""
 		}
 	}
 	return TrackerDB.Save(&tracker).Error
+}
+
+func GetTracker(message *tgbotapi.Message, column string) (string, error) {
+	var tracker Tracker
+	result := TrackerDB.First(&tracker, "user_id = ?", message.Chat.ID)
+	if result.Error != nil {
+		return "", result.Error
+	}
+	var res string
+	switch column {
+	case "delete_olimps":
+		res = tracker.DeleteOlimps
+	case "olimps":
+		res = tracker.Olimps
+	case "name":
+		res = tracker.Name
+	case "stage":
+		res = tracker.Stage
+	}
+	return res, nil
 }
 
 func CreateNewTrackerUser(message *tgbotapi.Message, name, stage string) error {

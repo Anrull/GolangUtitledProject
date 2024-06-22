@@ -42,8 +42,14 @@ func Help(message *tgbotapi.Message) {
 	Bot.Send(tgbotapi.NewMessage(message.Chat.ID, lexicon.HelpMessage))
 }
 
-func Time(message *tgbotapi.Message) {
-	msg := tgbotapi.NewMessage(message.Chat.ID, lexicon.TimetableTime)
+func Time(message *tgbotapi.Message, q bool) {
+	if !q {
+		msg := tgbotapi.NewMessage(message.Chat.ID, lexicon.TimetableTime)
+		msg.ParseMode = tgbotapi.ModeHTML
+		Bot.Send(msg)
+		return
+	}
+	msg := tgbotapi.NewEditMessageText(message.Chat.ID, message.MessageID, lexicon.TimetableTime)
 	msg.ParseMode = tgbotapi.ModeHTML
 	Bot.Send(msg)
 }

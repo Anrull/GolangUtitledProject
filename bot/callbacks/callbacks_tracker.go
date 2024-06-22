@@ -28,6 +28,11 @@ var BuilderOlimpsKeyboard tgbotapi.InlineKeyboardMarkup
 var BuilderGetOlimpsKeyboard tgbotapi.InlineKeyboardMarkup
 var BuilderDeleteOlimpsKeyboard tgbotapi.InlineKeyboardMarkup
 
+var BuilderYNAddRecord = tgbotapi.NewInlineKeyboardMarkup(tgbotapi.NewInlineKeyboardRow(
+	tgbotapi.NewInlineKeyboardButtonData("Да", "yn;AddRecord;yes"),
+	tgbotapi.NewInlineKeyboardButtonData("Нет", "yn;AddRecord;no"),
+))
+
 func init() {
 	BuilderSubjectsForTreker, SortBuilderSubjectsKeyboard, BuilderDeleteSubjectsForTreker = buttons("sub", "", lexicon.SubjectsForButton, 2, 1)
 	// ......... \\
