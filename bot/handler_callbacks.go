@@ -16,12 +16,15 @@ func ChoiceBotHandler(message *tgbotapi.Message, value string) {
 	if value == "bot-schedule" {
 		msg = tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Выбран бот-расписание", callbacks.BuilderWhoAreYou)
 	} else {
-		db.Update(message.Chat.ID, "temp", "snils")
+		_, err = db.GetTracker(message, "name")
+		if err != nil {
+			db.Update(message.Chat.ID, "temp", "snils")
+		}
 		_, err := db.GetTracker(message, "name")
 		if err != nil {
 			msg = tgbotapi.NewEditMessageText(message.Chat.ID, message.MessageID, "Выбран бот РСОШ трекер.\nДля начала работы введите СНИЛС")
 		} else {
-			msg = tgbotapi.NewEditMessageText(message.Chat.ID, message.MessageID, "Выбран бот РСОШ трекер.")
+			msg = tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Выбран бот РСОШ трекер.", BuilderMenuTracker)
 		}
 	}
 	Bot.Send(msg)

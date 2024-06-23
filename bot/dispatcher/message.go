@@ -32,7 +32,7 @@ func CommandsHandling(message *tgbotapi.Message) {
 	case "week":
 		handler.Week(message, false)
 	case "add":
-		trackerHandler.AddRecord(message)
+		trackerHandler.AddRecord(message, false)
 	default:
 		Bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Неизвестная команда (%s)", message.Text)))
 	}

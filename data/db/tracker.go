@@ -43,6 +43,16 @@ func AddTracker(message *tgbotapi.Message, column, value string) error {
 		} else {
 			tracker.Olimps = ""
 		}
+	case "filter":
+		if value != "" {
+			if tracker.LastIdOlimps == "" {
+				tracker.LastIdOlimps = value
+			} else {
+				tracker.LastIdOlimps = tracker.LastIdOlimps + ";;" + value
+			}
+		} else {
+			tracker.LastIdOlimps = ""
+		}
 	}
 	return TrackerDB.Save(&tracker).Error
 }
@@ -63,15 +73,21 @@ func GetTracker(message *tgbotapi.Message, column string) (string, error) {
 		res = tracker.Name
 	case "stage":
 		res = tracker.Stage
+	case "filter":
+		res = tracker.LastIdOlimps
 	}
 	return res, nil
 }
 
 func CreateNewTrackerUser(message *tgbotapi.Message, name, stage string) error {
-	newUser := Tracker{
-		UserID: message.Chat.ID,
-		Name:   name,
-		Stage:  stage,
+	_, err := GetTracker(message, "name")
+	if err != nil {
+		newUser := Tracker{
+			UserID: message.Chat.ID,
+			Name:   name,
+			Stage:  stage,
+		}
+		return TrackerDB.Create(&newUser).Error
 	}
-	return TrackerDB.Create(&newUser).Error
+	return nil
 }

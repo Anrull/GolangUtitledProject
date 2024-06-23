@@ -3,6 +3,9 @@ package dispatcher
 import (
 	"awesomeProject/bot"
 	"awesomeProject/bot/callbacks"
+	"awesomeProject/bot/lexicon"
+	"awesomeProject/data/db"
+	"fmt"
 
 	handler "awesomeProject/bot/bot_timetable"
 	trackerHandler "awesomeProject/bot/bot_tracker"
@@ -47,8 +50,8 @@ func YNCallbackQuery(query *tgbotapi.CallbackQuery, lstQ []string) {
 }
 
 func MenuCallbackQuery(query *tgbotapi.CallbackQuery, lstQ []string) {
+	message := query.Message
 	if lstQ[1] == "schedule" {
-		message := query.Message
 		switch lstQ[2] {
 		case "Получить расписание":
 			msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Какое именно", bot.MenuChoiceModeScheduleKeyboard)
@@ -73,6 +76,62 @@ func MenuCallbackQuery(query *tgbotapi.CallbackQuery, lstQ []string) {
 			handler.Week(message, true)
 		case "Расписание звонков":
 			handler.Time(message, true)
+		}
+	} else if lstQ[1] == "filter" {
+		switch lstQ[2] {
+		case "Без фильтров":
+			//trackerHandler.AddRecord(query.Message, true)
+			db.AddTracker(message, "filter", "")
+			Bot.Send(
+				tgbotapi.NewEditMessageTextAndMarkup(
+					message.Chat.ID, message.MessageID, "Выберите фильтр", callbacks.SomeGetSubjectsTracker))
+		case "Несколько фильтров":
+			db.AddTracker(message, "filter", "")
+			Bot.Send(
+				tgbotapi.NewEditMessageTextAndMarkup(
+					message.Chat.ID, message.MessageID, "Выберите фильтр", callbacks.SomeGetSubjectsTracker))
+		case "Отфильтровать по олимпиаде":
+			will := bot.CopyInlineKeyboard(callbacks.BuilderGetOlimpsKeyboard)
+			will.InlineKeyboard = will.InlineKeyboard[:lexicon.OlimpListStep]
+			will.InlineKeyboard = append(will.InlineKeyboard, tgbotapi.NewInlineKeyboardRow(
+				tgbotapi.NewInlineKeyboardButtonData(
+					lexicon.OlimpListLeft, fmt.Sprintf("tracker;get;olimp;nil;0;%d;min",
+						len(callbacks.BuilderGetOlimpsKeyboard.InlineKeyboard))),
+				tgbotapi.NewInlineKeyboardButtonData(
+					lexicon.OlimpListRight, fmt.Sprintf("tracker;get;olimp;nil;0;%d;plus",
+						len(callbacks.BuilderGetOlimpsKeyboard.InlineKeyboard)))))
+			Bot.Send(tgbotapi.NewEditMessageTextAndMarkup(query.Message.Chat.ID,
+				query.Message.MessageID, "Выберите нужную олимпиаду", will))
+		case "Отфильтровать по предмету":
+			Bot.Send(
+				tgbotapi.NewEditMessageTextAndMarkup(
+					query.Message.Chat.ID, query.Message.MessageID,
+					"Выберите нужную олимпиаду", callbacks.SortBuilderSubjectsKeyboard))
+		case "Отфильтровать по этапу":
+			Bot.Send(
+				tgbotapi.NewEditMessageTextAndMarkup(
+					query.Message.Chat.ID, query.Message.MessageID,
+					"Выберите нужную олимпиаду", callbacks.SortBuilderStageKeyboard))
+		case "Отфильтровать по наставнику":
+			Bot.Send(
+				tgbotapi.NewEditMessageTextAndMarkup(
+					query.Message.Chat.ID, query.Message.MessageID,
+					"Выберите нужную олимпиаду", callbacks.BuilderGetTeacherKeyboard))
+		case "Назад":
+			Bot.Send(tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Вот некоторые опции", bot.BuilderMenuTracker))
+		}
+	} else if lstQ[1] == "tracker" {
+		switch lstQ[2] {
+		case "Добавить запись":
+			trackerHandler.AddRecord(message, true)
+		case "Просмотр записей":
+			Bot.Send(
+				tgbotapi.NewEditMessageTextAndMarkup(
+					message.Chat.ID, message.MessageID, "Выберите фильтр", bot.BuilderChoiceTrackerFilter))
+		case "Назад":
+			Bot.Send(
+				tgbotapi.NewEditMessageTextAndMarkup(
+					message.Chat.ID, message.MessageID, "Выберите бота", callbacks.BuilderChoiceBot))
 		}
 	}
 }

@@ -35,3 +35,27 @@ func AddRecord(name, class, olimp, sub, teacher, stage string) error {
 	}
 	return RecordsDB.Create(&newUser).Error
 }
+
+func GetRecords(name, sub, olimp, stage, teacher string) (*[]Records, error) {
+	var records []Records
+	query := RecordsDB.Where("name = ?", name)
+
+	if sub != "nil" {
+		query = query.Where("subjects LIKE ?", "%"+sub+"%")
+	}
+	if olimp != "nil" {
+		query = query.Where("olimps LIKE ?", "%"+olimp+"%")
+	}
+	if stage != "nil" {
+		query = query.Where("stage LIKE ?", "%"+stage+"%")
+	}
+	if teacher != "nil" {
+		query = query.Where("teachers LIKE ?", "%"+teacher+"%")
+	}
+
+	if err := query.Find(&records).Error; err != nil {
+		return nil, err
+	}
+
+	return &records, nil
+}

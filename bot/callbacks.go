@@ -1,6 +1,8 @@
 package bot
 
-import tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+import (
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+)
 
 var MenuScheduleBotKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 	tgbotapi.NewInlineKeyboardRow(
@@ -72,7 +74,7 @@ var BuilderMenuTracker = tgbotapi.NewInlineKeyboardMarkup(
 var BuilderChoiceTrackerFilter = tgbotapi.NewInlineKeyboardMarkup(
 	tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData(
-			"Без фильтров", "menu;filter;Добавить запись",
+			"Без фильтров", "menu;filter;Без фильтров",
 		)),
 	tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData(
@@ -100,3 +102,11 @@ var BuilderChoiceTrackerFilter = tgbotapi.NewInlineKeyboardMarkup(
 		),
 	),
 )
+
+func CopyInlineKeyboard(kb tgbotapi.InlineKeyboardMarkup) tgbotapi.InlineKeyboardMarkup {
+	will := tgbotapi.InlineKeyboardMarkup{}
+	willCopy_ := make([][]tgbotapi.InlineKeyboardButton, len(kb.InlineKeyboard))
+	copy(willCopy_, kb.InlineKeyboard)
+	will.InlineKeyboard = willCopy_
+	return will
+}
