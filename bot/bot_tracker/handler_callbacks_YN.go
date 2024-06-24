@@ -1,6 +1,7 @@
 package bot_tracker
 
 import (
+	"awesomeProject/bot/callbacks"
 	"awesomeProject/data/db"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"strings"
@@ -23,9 +24,9 @@ func YNAddRecordHandler(message *tgbotapi.Message, role string) {
 			logging(message, err)
 			return
 		}
-		msg = tgbotapi.NewEditMessageText(message.Chat.ID, message.MessageID, "Запись добавлена")
+		msg = tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Запись добавлена", callbacks.BuilderEscMenu)
 	} else {
-		msg = tgbotapi.NewEditMessageText(message.Chat.ID, message.MessageID, "Запись не была добавлена")
+		msg = tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Запись не была добавлена", callbacks.BuilderEscMenu)
 	}
 	Bot.Send(msg)
 	db.AddTracker(message, "olimps", "")

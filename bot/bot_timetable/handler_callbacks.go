@@ -20,16 +20,14 @@ func WhoAreYouHandler(ChatId int64, msgId int, role string) {
 		Bot.Send(tgbotapi.NewMessage(ChatId, "Ошибка связи с db"))
 		return
 	}
+
 	var msg tgbotapi.EditMessageTextConfig
 	if role == "student" {
-		//tgbotapi.NewEditMessageText(ChatId, msgId, "Выберите класс")
-		//msg.ReplyMarkup = callbacks.BuilderChoiceStage
 		msg = tgbotapi.NewEditMessageTextAndMarkup(ChatId, msgId, "Кто именно?", callbacks.BuilderChoiceStage)
 	} else if role == "teacher" {
-		//tgbotapi.NewEditMessageText(ChatId, msgId, "Кто именно?")
 		msg = tgbotapi.NewEditMessageTextAndMarkup(ChatId, msgId, "Кто именно?", callbacks.BuilderChoiceTeacher)
-		//msg.ReplyMarkup = callbacks.BuilderChoiceTeacher
 	}
+
 	Bot.Send(msg)
 }
 
@@ -42,8 +40,7 @@ func DaysHandler(ChatID int64, week, day string) {
 	}
 
 	var schedule [][]string
-	n, err := count("data/temp/images")
-	filename := fmt.Sprintf("data/temp/images/schedule%d.png", n)
+	var photoByte []byte
 	if role == "student" {
 		res, err := db.Get(ChatID, "classes")
 		if err != nil {
@@ -51,9 +48,12 @@ func DaysHandler(ChatID int64, week, day string) {
 			Bot.Send(tgbotapi.NewMessage(ChatID, "Произошла ошибка свзяи с db"))
 			return
 		}
+
 		schedule, err = timetable.GetTimetableText(week, day, res)
-		timetable.DrawTimetable(schedule,
-			fmt.Sprintf("%s, нед: %s, день: %s", res, weeks[week], days[day]), false, n)
+
+		photoByte, err = timetable.DrawTimetableTest(schedule,
+			fmt.Sprintf("%s, нед: %s, день: %s", res, weeks[week],
+				days[day]), false)
 	} else {
 		name, err := db.Get(ChatID, "name_teacher")
 		if err != nil {
@@ -61,21 +61,27 @@ func DaysHandler(ChatID int64, week, day string) {
 			Bot.Send(tgbotapi.NewMessage(ChatID, "Произошла ошибка свзяи с db"))
 			return
 		}
+
 		schedule, err = timetable.GetTimetableTeachersText(name, week, day)
-		timetable.DrawTimetable(schedule,
-			fmt.Sprintf("%s, нед: %s, день: %s", name, weeks[week], days[day]), true, n)
+
+		photoByte, _ = timetable.DrawTimetableTest(schedule,
+			fmt.Sprintf("%s, нед: %s, день: %s",
+				name, weeks[week], days[day]), true)
 	}
-	sendPhoto(ChatID, filename)
+
+	sendPhotoByte(ChatID, photoByte)
 }
 
 func ChoiceTimetableHandler(ChatId int64, msgId int, param, role string) {
 	var msg = tgbotapi.EditMessageTextConfig{}
+
 	var err error
 	if role == "student" {
 		err = db.Update(ChatId, "classes", param)
 	} else {
 		err = db.Update(ChatId, "name_teacher", param)
 	}
+
 	if err != nil {
 		Bot.Send(tgbotapi.NewMessage(ChatId, "Ошибка связи с db"))
 		log.Println(err)
@@ -89,6 +95,7 @@ func ChoiceTimetableHandler(ChatId int64, msgId int, param, role string) {
 		msg = tgbotapi.NewEditMessageText(
 			ChatId, msgId, fmt.Sprintf("Принято, %s", param))
 	}
+
 	Bot.Send(msg)
 }
 

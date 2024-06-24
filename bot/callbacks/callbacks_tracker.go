@@ -2,8 +2,10 @@ package callbacks
 
 import (
 	"awesomeProject/bot/lexicon"
-	"fmt"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
+	"fmt"
 )
 
 // создание клавиатуры выбора предмета "tracker;add;sub;%d"
@@ -32,10 +34,26 @@ var BuilderOlimpsKeyboard tgbotapi.InlineKeyboardMarkup
 var BuilderGetOlimpsKeyboard tgbotapi.InlineKeyboardMarkup
 var BuilderDeleteOlimpsKeyboard tgbotapi.InlineKeyboardMarkup
 
+var DeleteButton = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Удалить", "menu;filter;Удалить")))
+
 var BuilderYNAddRecord = tgbotapi.NewInlineKeyboardMarkup(tgbotapi.NewInlineKeyboardRow(
 	tgbotapi.NewInlineKeyboardButtonData("Да", "yn;AddRecord;yes"),
 	tgbotapi.NewInlineKeyboardButtonData("Нет", "yn;AddRecord;no"),
 ))
+
+var BuilderEscMenu = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData(
+			"Назад", "menu;filter;Назад")))
+
+var ButtonsAfterOlimps = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData(
+			"Назад", "menu;filter;Назад"),
+		tgbotapi.NewInlineKeyboardButtonData(
+			"Удалить", "menu;filter;Удалить")))
 
 func init() {
 	BuilderSubjectsForTracker, SortBuilderSubjectsKeyboard, BuilderDeleteSubjectsForTreker, SomeGetSubjectsTracker = buttons("sub", "", lexicon.SubjectsForButton, 2, 1)
@@ -45,6 +63,22 @@ func init() {
 	BuilderTeacherKeyboards, BuilderGetTeacherKeyboard, BuilderDeleteTeacherKeyboard, SomeGetBuilderTeacherKeyboards = buttons("teacher", "", lexicon.TeacherTracker, 3, 1)
 	// ......... \\
 	BuilderOlimpsKeyboard, BuilderGetOlimpsKeyboard, BuilderDeleteOlimpsKeyboard, SomeGetBuilderOlimpsKeyboard = buttons("olimp", ";nil;nil;nil", lexicon.TrackerOlimps, 1, 0)
+}
+
+func CreateButtonsDelete(max int) tgbotapi.InlineKeyboardMarkup {
+	var sliceButtons []tgbotapi.InlineKeyboardButton
+	var sliceRows [][]tgbotapi.InlineKeyboardButton
+
+	for i := 0; i < max; i++ {
+		if i%3 == 0 && i != 0 {
+			sliceRows = append(sliceRows, sliceButtons)
+			sliceButtons = []tgbotapi.InlineKeyboardButton{}
+		}
+		sliceButtons = append(sliceButtons, tgbotapi.NewInlineKeyboardButtonData(
+			fmt.Sprintf("%d", i), fmt.Sprintf("del;filter;%d;%d", i, max)))
+	}
+
+	return tgbotapi.NewInlineKeyboardMarkup(sliceRows...)
 }
 
 func buttons(data, subData string, slice []string, step, minParam int) (tgbotapi.InlineKeyboardMarkup, tgbotapi.InlineKeyboardMarkup, tgbotapi.InlineKeyboardMarkup, tgbotapi.InlineKeyboardMarkup) {

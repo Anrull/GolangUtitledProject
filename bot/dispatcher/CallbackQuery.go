@@ -119,6 +119,8 @@ func MenuCallbackQuery(query *tgbotapi.CallbackQuery, lstQ []string) {
 					"Выберите нужную олимпиаду", callbacks.BuilderGetTeacherKeyboard))
 		case "Назад":
 			Bot.Send(tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Вот некоторые опции", bot.BuilderMenuTracker))
+		case "Удалить":
+			trackerHandler.HandlerDeleteOlimpsMessage(message)
 		}
 	} else if lstQ[1] == "tracker" {
 		switch lstQ[2] {

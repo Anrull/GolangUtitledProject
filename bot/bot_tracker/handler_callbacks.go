@@ -292,7 +292,6 @@ func TeachersCallbacksHandler(message *tgbotapi.Message, method, index string) {
 		}
 
 		name, err := db.GetTracker(message, "name")
-		stage_, _ := db.GetTracker(message, "stage")
 		if err != nil {
 			logging(message, err)
 			return
@@ -302,15 +301,7 @@ func TeachersCallbacksHandler(message *tgbotapi.Message, method, index string) {
 			logging(message, err)
 			return
 		}
-		res := format(name, stage_, records)
-		for i, elem := range res {
-			if i == 0 {
-				Bot.Send(tgbotapi.NewEditMessageText(
-					message.Chat.ID, message.MessageID, elem))
-			} else {
-				Bot.Send(tgbotapi.NewMessage(message.Chat.ID, elem))
-			}
-		}
+		sendOlimps(message, name, records)
 	}
 }
 
@@ -351,7 +342,12 @@ func format(name, stage string, records *[]db.Records) []string {
 func sendOlimps(message *tgbotapi.Message, name string, records *[]db.Records) {
 	class, _ := db.GetTracker(message, "stage")
 	res := format(name, class, records)
-	for i, elem := range res {
+	if len(res) == 1 {
+		Bot.Send(tgbotapi.NewEditMessageTextAndMarkup(
+			message.Chat.ID, message.MessageID, res[0], callbacks.ButtonsAfterOlimps))
+		return
+	}
+	for i, elem := range res[:len(res)-1] {
 		if i == 0 {
 			Bot.Send(tgbotapi.NewEditMessageText(
 				message.Chat.ID, message.MessageID, elem))
@@ -359,4 +355,7 @@ func sendOlimps(message *tgbotapi.Message, name string, records *[]db.Records) {
 			Bot.Send(tgbotapi.NewMessage(message.Chat.ID, elem))
 		}
 	}
+	msg := tgbotapi.NewMessage(message.Chat.ID, res[len(res)-1])
+	msg.ReplyMarkup = callbacks.ButtonsAfterOlimps
+	Bot.Send(msg)
 }
