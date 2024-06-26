@@ -7,7 +7,6 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
-	"os"
 )
 
 var days = map[string]string{"0": "пн", "1": "вт", "2": "ср", "3": "чт", "4": "пт"}
@@ -97,20 +96,4 @@ func ChoiceTimetableHandler(ChatId int64, msgId int, param, role string) {
 	}
 
 	Bot.Send(msg)
-}
-
-func count(path string) (int, error) {
-	files, err := os.ReadDir(path)
-	if err != nil {
-		return 0, fmt.Errorf("не удалось прочитать директорию: %w", err)
-	}
-
-	count_ := 0
-	for _, file := range files {
-		if !file.IsDir() {
-			count_++
-		}
-	}
-
-	return count_, nil
 }

@@ -3,6 +3,7 @@ package dispatcher
 import (
 	"awesomeProject/bot"
 	"awesomeProject/data/db"
+	"os"
 
 	handler "awesomeProject/bot/bot_timetable"
 	trackerHandler "awesomeProject/bot/bot_tracker"
@@ -33,6 +34,20 @@ func CommandsHandling(message *tgbotapi.Message) {
 		handler.Week(message, false)
 	case "add":
 		trackerHandler.AddRecord(message, false)
+	case "shutdown":
+		if message.Chat.ID == 1705933876 {
+			Bot.Send(tgbotapi.NewMessage(1705933876, "Бот выключен"))
+			os.Exit(0)
+		}
+	case "db":
+		//if message.Chat.ID == 1705933876 {
+		//	Bot.Send(tgbotapi.NewMessage(1705933876, "Бот выключен"))
+		//	fileUser, _ := os.ReadFile("data/db/users.db")
+		//	//file, e, r := tgbotapi.RequestFileData(fileUser).UploadData()
+		//
+		//	Bot.Send(tgbotapi.NewDocument(1705933876, fileUser))
+		//	//tgbotapi.
+		//}
 	default:
 		Bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Неизвестная команда (%s)", message.Text)))
 	}

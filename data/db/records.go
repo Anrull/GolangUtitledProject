@@ -24,6 +24,12 @@ func init() {
 }
 
 func AddRecord(name, class, olimp, sub, teacher, stage string) error {
+	var record Records
+	result := DB.First(&record, "name = ?", name)
+	if result.Error == nil {
+		return nil
+	}
+
 	newUser := Records{
 		Date:     time.Now().Format("2006-01-02"),
 		Name:     name,
