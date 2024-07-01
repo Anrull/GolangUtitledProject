@@ -1,4 +1,4 @@
-package bot_tracker
+package botTracker
 
 import (
 	"awesomeProject/bot"
@@ -13,8 +13,6 @@ import (
 	"log"
 	"strconv"
 )
-
-var Bot = bot.Bot
 
 func SubjectsCallbacksHandler(message *tgbotapi.Message, method, index string) {
 	if method == "add" {
@@ -36,7 +34,7 @@ func SubjectsCallbacksHandler(message *tgbotapi.Message, method, index string) {
 				lexicon.OlimpListRight, fmt.Sprintf("tracker;add;olimp;nil;0;%d;plus", len(callbacks.BuilderOlimpsKeyboard.InlineKeyboard)))))
 		msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Выберите олимпиаду", will)
 
-		Bot.Send(msg)
+		bot.Send(msg)
 		return
 	}
 	if method == "someget" {
@@ -57,7 +55,7 @@ func SubjectsCallbacksHandler(message *tgbotapi.Message, method, index string) {
 				lexicon.OlimpListRight, fmt.Sprintf("tracker;someget;olimp;nil;0;%d;plus", len(callbacks.SomeGetBuilderOlimpsKeyboard.InlineKeyboard)))))
 		msg := tgbotapi.NewEditMessageReplyMarkup(
 			message.Chat.ID, message.MessageID, will)
-		Bot.Send(msg)
+		bot.Send(msg)
 		return
 	}
 	if method == "get" {
@@ -115,7 +113,7 @@ func OlimpsCallbacksHandler(message *tgbotapi.Message, status, spifMin, spifMax,
 				lexicon.OlimpListRight, fmt.Sprintf("tracker;%s;olimp;nil;%d;%d;plus", method, spif_, spifMax))))
 
 		msg := tgbotapi.NewEditMessageReplyMarkup(message.Chat.ID, message.MessageID, will)
-		Bot.Send(msg)
+		bot.Send(msg)
 		return
 	}
 	if method == "add" {
@@ -128,7 +126,7 @@ func OlimpsCallbacksHandler(message *tgbotapi.Message, status, spifMin, spifMax,
 			return
 		}
 		msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Выберите достигнутый этап", callbacks.BuilderStageKeyboards)
-		Bot.Send(msg)
+		bot.Send(msg)
 		return
 	}
 	if method == "someget" {
@@ -144,7 +142,7 @@ func OlimpsCallbacksHandler(message *tgbotapi.Message, status, spifMin, spifMax,
 			return
 		}
 		msg := tgbotapi.NewEditMessageReplyMarkup(message.Chat.ID, message.MessageID, callbacks.SomeGetBuilderStageKeyboards)
-		Bot.Send(msg)
+		bot.Send(msg)
 		return
 	}
 	if method == "get" {
@@ -172,7 +170,7 @@ func StageCallbacksHandler(message *tgbotapi.Message, method, index string) {
 			return
 		}
 		msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Выберите наставника", callbacks.BuilderTeacherKeyboards)
-		Bot.Send(msg)
+		bot.Send(msg)
 		return
 	}
 	if method == "someget" {
@@ -188,7 +186,7 @@ func StageCallbacksHandler(message *tgbotapi.Message, method, index string) {
 			return
 		}
 		msg := tgbotapi.NewEditMessageReplyMarkup(message.Chat.ID, message.MessageID, callbacks.SomeGetBuilderTeacherKeyboards)
-		Bot.Send(msg)
+		bot.Send(msg)
 		return
 	}
 	if method == "get" {
@@ -222,7 +220,7 @@ func TeachersCallbacksHandler(message *tgbotapi.Message, method, index string) {
 		slice := strings.Split(textSlice, ";")
 		text := fmt.Sprintf("Подтвердите правильность введенных вами данных:\n%s\n%s\n%s\n%s", slice[0], slice[1], slice[2], slice[3])
 		msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, text, callbacks.BuilderYNAddRecord)
-		Bot.Send(msg)
+		bot.Send(msg)
 		return
 	}
 	if method == "get" {
@@ -243,7 +241,7 @@ func TeachersCallbacksHandler(message *tgbotapi.Message, method, index string) {
 		logging(message, err)
 		value := "teacher||nil"
 		if i != 999 {
-			value = lexicon.TeacherTracker[i]
+			value = "teacher||" + lexicon.TeacherTracker[i]
 		}
 		err = db.AddTracker(message, "filter", value)
 		if err != nil {
@@ -308,7 +306,7 @@ func TeachersCallbacksHandler(message *tgbotapi.Message, method, index string) {
 func logging(message *tgbotapi.Message, err error) {
 	if err != nil {
 		log.Println(err)
-		Bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Ошибка связи с db"))
+		bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Ошибка связи с db"))
 	}
 }
 
@@ -326,7 +324,7 @@ func format(name, stage string, records *[]db.Records) []string {
 			builder.Reset()
 		}
 		builder.WriteString("\n\n")
-		builder.WriteString("🧩 ")
+		builder.WriteString("<blockquote>🧩 ")
 		builder.WriteString(record.Olimps)
 		builder.WriteString("\n🏆 ")
 		builder.WriteString(record.Stage)
@@ -334,6 +332,7 @@ func format(name, stage string, records *[]db.Records) []string {
 		builder.WriteString(record.Subjects)
 		builder.WriteString("\n👨‍🏫 ")
 		builder.WriteString(record.Teachers)
+		builder.WriteString("</blockquote>")
 	}
 	result = append(result, builder.String())
 	return result
@@ -343,19 +342,25 @@ func sendOlimps(message *tgbotapi.Message, name string, records *[]db.Records) {
 	class, _ := db.GetTracker(message, "stage")
 	res := format(name, class, records)
 	if len(res) == 1 {
-		Bot.Send(tgbotapi.NewEditMessageTextAndMarkup(
-			message.Chat.ID, message.MessageID, res[0], callbacks.ButtonsAfterOlimps))
-		return
+		msg := tgbotapi.NewEditMessageTextAndMarkup(
+			message.Chat.ID, message.MessageID, res[0], callbacks.ButtonsAfterOlimps)
+		msg.ParseMode = tgbotapi.ModeHTML
+		bot.Send(msg)
 	}
 	for i, elem := range res[:len(res)-1] {
 		if i == 0 {
-			Bot.Send(tgbotapi.NewEditMessageText(
-				message.Chat.ID, message.MessageID, elem))
+			msg := tgbotapi.NewEditMessageText(
+				message.Chat.ID, message.MessageID, elem)
+			msg.ParseMode = tgbotapi.ModeHTML
+			bot.Send(msg)
 		} else {
-			Bot.Send(tgbotapi.NewMessage(message.Chat.ID, elem))
+			msg := tgbotapi.NewMessage(message.Chat.ID, elem)
+			msg.ParseMode = tgbotapi.ModeHTML
+			bot.Send(msg)
 		}
 	}
 	msg := tgbotapi.NewMessage(message.Chat.ID, res[len(res)-1])
 	msg.ReplyMarkup = callbacks.ButtonsAfterOlimps
-	Bot.Send(msg)
+	msg.ParseMode = tgbotapi.ModeHTML
+	bot.Send(msg)
 }

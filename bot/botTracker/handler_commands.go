@@ -1,9 +1,12 @@
-package bot_tracker
+package botTracker
 
 import (
+	"awesomeProject/bot"
 	"awesomeProject/bot/callbacks"
 	"awesomeProject/data/db"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
 	"strings"
 )
 
@@ -11,11 +14,12 @@ func AddRecord(message *tgbotapi.Message, q bool) {
 	if !q {
 		msg := tgbotapi.NewMessage(message.Chat.ID, "Выберите предмет")
 		msg.ReplyMarkup = callbacks.BuilderSubjectsForTracker
-		Bot.Send(msg)
+		bot.Send(msg)
 		return
 	}
-	msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Выберите предмет", callbacks.BuilderSubjectsForTracker)
-	Bot.Send(msg)
+	msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID,
+		message.MessageID, "Выберите предмет", callbacks.BuilderSubjectsForTracker)
+	bot.Send(msg)
 
 }
 
@@ -52,17 +56,17 @@ func HandlerDeleteOlimpsMessage(message *tgbotapi.Message) {
 	markup := callbacks.CreateButtonsDelete(len(*records))
 	if len(*records) > 100 {
 		msg = tgbotapi.NewMessage(message.Chat.ID, "Выберите поменьше фильтров")
-		Bot.Send(msg)
+		bot.Send(msg)
 		return
 	}
 	if len(*records) > 49 {
 		msg.ReplyMarkup = markup.InlineKeyboard[:50]
 		msg1 := tgbotapi.NewMessage(message.Chat.ID, "Вторая часть")
 		msg1.ReplyMarkup = markup.InlineKeyboard[50:]
-		Bot.Send(msg)
-		Bot.Send(msg1)
+		bot.Send(msg)
+		bot.Send(msg1)
 		return
 	}
 	msg.ReplyMarkup = markup.InlineKeyboard
-	Bot.Send(msg)
+	bot.Send(msg)
 }

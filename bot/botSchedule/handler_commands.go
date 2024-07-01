@@ -1,4 +1,4 @@
-package bot_timetable
+package botSchedule
 
 import (
 	"awesomeProject/backend/timetable"
@@ -24,24 +24,24 @@ func Start(message *tgbotapi.Message) {
 		"Добро пожаловать в новую версию бота, написанную на языке программирования Golang!")
 	msg.ReplyMarkup = callbacks.BuilderChoiceBot
 
-	Bot.Send(msg)
+	bot.Send(msg)
 }
 
 func Help(message *tgbotapi.Message) {
-	Bot.Send(tgbotapi.NewMessage(message.Chat.ID, lexicon.HelpMessage))
+	bot.Send(tgbotapi.NewMessage(message.Chat.ID, lexicon.HelpMessage))
 }
 
 func Time(message *tgbotapi.Message, query bool) {
 	if !query {
 		msg := tgbotapi.NewMessage(message.Chat.ID, lexicon.TimetableTime)
 		msg.ParseMode = tgbotapi.ModeHTML
-		Bot.Send(msg)
-
+		bot.Send(msg)
 		return
 	}
+
 	msg := tgbotapi.NewEditMessageText(message.Chat.ID, message.MessageID, lexicon.TimetableTime)
 	msg.ParseMode = tgbotapi.ModeHTML
-	Bot.Send(msg)
+	bot.Send(msg)
 }
 
 func Days(message *tgbotapi.Message) {
@@ -51,8 +51,8 @@ func Days(message *tgbotapi.Message) {
 	msg1.ReplyMarkup = callbacks.BuilderDays1
 	msg2.ReplyMarkup = callbacks.BuilderDays0
 
-	Bot.Send(msg1)
-	Bot.Send(msg2)
+	bot.Send(msg1)
+	bot.Send(msg2)
 }
 
 func Schedule(message *tgbotapi.Message, today bool) {
@@ -62,7 +62,7 @@ func Schedule(message *tgbotapi.Message, today bool) {
 	week, err := timetable.GetWeek(false, true)
 
 	if err != nil {
-		Bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Кажется, идут каникулы :)"))
+		bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Кажется, идут каникулы :)"))
 	} else {
 		var day string
 		var photoByte []byte
@@ -115,13 +115,13 @@ func Week(message *tgbotapi.Message, query bool) {
 	if !query {
 		msg := tgbotapi.NewMessage(message.Chat.ID, text)
 		msg.ParseMode = tgbotapi.ModeHTML
-		Bot.Send(msg)
+		bot.Send(msg)
 		return
 	}
 
 	msg := tgbotapi.NewEditMessageText(message.Chat.ID, message.MessageID, text)
 	msg.ParseMode = tgbotapi.ModeHTML
-	Bot.Send(msg)
+	bot.Send(msg)
 }
 
 func sendPhotoByte(ChatID int64, photoBytes []byte) {
@@ -137,6 +137,6 @@ func sendPhotoByte(ChatID int64, photoBytes []byte) {
 func logging(message *tgbotapi.Message, err error) {
 	if err != nil {
 		log.Println(err)
-		Bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Ошибка связи с db"))
+		bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Ошибка связи с db"))
 	}
 }

@@ -5,8 +5,8 @@ import (
 	"awesomeProject/data/db"
 	"os"
 
-	handler "awesomeProject/bot/bot_timetable"
-	trackerHandler "awesomeProject/bot/bot_tracker"
+	handler "awesomeProject/bot/botSchedule"
+	trackerHandler "awesomeProject/bot/botTracker"
 
 	"fmt"
 	"log"
@@ -36,20 +36,33 @@ func CommandsHandling(message *tgbotapi.Message) {
 		trackerHandler.AddRecord(message, false)
 	case "shutdown":
 		if message.Chat.ID == 1705933876 {
-			Bot.Send(tgbotapi.NewMessage(1705933876, "Бот выключен"))
+			bot.Send(tgbotapi.NewMessage(1705933876, "Бот выключен"))
 			os.Exit(0)
 		}
+	case "admin":
+		if message.Chat.ID == 1705933876 {
+			msg := tgbotapi.NewMessage(message.Chat.ID, "Панель Администратора")
+			msg.ReplyToMessageID = message.MessageID
+			msg.ReplyMarkup = bot.AdminPanel
+			bot.Send(msg)
+		}
 	case "db":
-		//if message.Chat.ID == 1705933876 {
-		//	Bot.Send(tgbotapi.NewMessage(1705933876, "Бот выключен"))
-		//	fileUser, _ := os.ReadFile("data/db/users.db")
-		//	//file, e, r := tgbotapi.RequestFileData(fileUser).UploadData()
-		//
-		//	Bot.Send(tgbotapi.NewDocument(1705933876, fileUser))
-		//	//tgbotapi.
-		//}
+		if message.Chat.ID == 1705933876 {
+			fileReader, _ := os.Open("data/db/users.db")
+			defer fileReader.Close()
+
+			inputFile := tgbotapi.FileReader{
+				Name:   "users.db",
+				Reader: fileReader,
+			}
+
+			msg := tgbotapi.NewDocument(message.Chat.ID, inputFile)
+			msg.Caption = "Database"
+
+			bot.Send(msg)
+		}
 	default:
-		Bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Неизвестная команда (%s)", message.Text)))
+		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Неизвестная команда (%s)", message.Text)))
 	}
 }
 
@@ -64,13 +77,13 @@ func MessageHandler(message *tgbotapi.Message) {
 		status, name, stage := db.CheckSnils(snils)
 		if status {
 			err = db.CreateNewTrackerUser(message, name, stage)
-			db.Update(message.Chat.ID, "temp", "")
+			_ = db.Update(message.Chat.ID, "temp", "")
 			if err != nil {
-				Bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Неудалось заполнить базу данных"))
+				bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Неудалось заполнить базу данных"))
 			} else {
 				msg := tgbotapi.NewMessage(message.Chat.ID, "Готово!\nВот некоторый функционал РСОШ Трекера")
 				msg.ReplyMarkup = bot.BuilderMenuTracker
-				Bot.Send(msg)
+				bot.Send(msg)
 			}
 		}
 	} else {
@@ -84,6 +97,6 @@ func MessageHandler(message *tgbotapi.Message) {
 		} else {
 			msg.ReplyMarkup = bot.BuilderMenuTracker
 		}
-		Bot.Send(msg)
+		bot.Send(msg)
 	}
 }

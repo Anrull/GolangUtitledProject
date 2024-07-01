@@ -4,6 +4,44 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+var AdminPanel = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Database", "admin;get_db"),
+		tgbotapi.NewInlineKeyboardButtonData("Logs", "admin;get_logs"),
+	),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Кол-во юзеров", "admin;count"),
+	),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Shutdown", "admin;shutdown"),
+	),
+)
+
+var AdminPanelXLSX = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData(".db", "admin;mode;.db"),
+		tgbotapi.NewInlineKeyboardButtonData(".xlsx", "admin;mode;.xlsx")),
+)
+
+var AdminPanelDB = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("All database", "admin;all"),
+	),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Users", "admin;users"),
+		tgbotapi.NewInlineKeyboardButtonData("Records", "admin;records"),
+	),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Tracker", "admin;tracker"),
+		tgbotapi.NewInlineKeyboardButtonData("Students", "admin;students"),
+	),
+)
+
+var AdminPanelEscape = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Назад", "admin;escape")),
+)
+
 var MenuScheduleBotKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 	tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData(

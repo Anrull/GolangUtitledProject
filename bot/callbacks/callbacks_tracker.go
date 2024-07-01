@@ -81,9 +81,11 @@ func CreateButtonsDelete(max int) tgbotapi.InlineKeyboardMarkup {
 	return tgbotapi.NewInlineKeyboardMarkup(sliceRows...)
 }
 
-func buttons(data, subData string, slice []string, step, minParam int) (tgbotapi.InlineKeyboardMarkup, tgbotapi.InlineKeyboardMarkup, tgbotapi.InlineKeyboardMarkup, tgbotapi.InlineKeyboardMarkup) {
-	slice0, slice1, slice2, slice3 := [][]tgbotapi.InlineKeyboardButton{}, [][]tgbotapi.InlineKeyboardButton{}, [][]tgbotapi.InlineKeyboardButton{}, [][]tgbotapi.InlineKeyboardButton{}
-	slice00, slice11, slice22, slice33 := []tgbotapi.InlineKeyboardButton{}, []tgbotapi.InlineKeyboardButton{}, []tgbotapi.InlineKeyboardButton{}, []tgbotapi.InlineKeyboardButton{}
+func buttons(data, subData string, slice []string, step, minParam int) (tgbotapi.InlineKeyboardMarkup,
+	tgbotapi.InlineKeyboardMarkup, tgbotapi.InlineKeyboardMarkup,
+	tgbotapi.InlineKeyboardMarkup) {
+	var slice0, slice1, slice2, slice3 [][]tgbotapi.InlineKeyboardButton
+	var slice00, slice11, slice22, slice33 []tgbotapi.InlineKeyboardButton
 	slice3 = append(slice3, tgbotapi.NewInlineKeyboardRow(tgbotapi.NewInlineKeyboardButtonData("Пропустить",
 		fmt.Sprintf("tracker;someget;%s;%d%s", data, 999, subData))))
 	for i := range slice {

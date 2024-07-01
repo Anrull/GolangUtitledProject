@@ -1,11 +1,14 @@
-package bot_timetable
+package botSchedule
 
 import (
 	"awesomeProject/backend/timetable"
+	"awesomeProject/bot"
 	"awesomeProject/bot/callbacks"
 	"awesomeProject/data/db"
-	"fmt"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
+	"fmt"
 	"log"
 )
 
@@ -16,7 +19,7 @@ func WhoAreYouHandler(ChatId int64, msgId int, role string) {
 	err := db.Update(ChatId, "role", role)
 	if err != nil {
 		log.Println(err)
-		Bot.Send(tgbotapi.NewMessage(ChatId, "Ошибка связи с db"))
+		bot.Send(tgbotapi.NewMessage(ChatId, "Ошибка связи с db"))
 		return
 	}
 
@@ -24,17 +27,18 @@ func WhoAreYouHandler(ChatId int64, msgId int, role string) {
 	if role == "student" {
 		msg = tgbotapi.NewEditMessageTextAndMarkup(ChatId, msgId, "Кто именно?", callbacks.BuilderChoiceStage)
 	} else if role == "teacher" {
-		msg = tgbotapi.NewEditMessageTextAndMarkup(ChatId, msgId, "Кто именно?", callbacks.BuilderChoiceTeacher)
+		msg = tgbotapi.NewEditMessageTextAndMarkup(ChatId, msgId,
+			"Кто именно?", callbacks.BuilderChoiceTeacher)
 	}
 
-	Bot.Send(msg)
+	bot.Send(msg)
 }
 
 func DaysHandler(ChatID int64, week, day string) {
 	role, err := db.Get(ChatID, "role")
 	if err != nil {
 		log.Println(err)
-		Bot.Send(tgbotapi.NewMessage(ChatID, "Произошла ошибка свзяи с db"))
+		bot.Send(tgbotapi.NewMessage(ChatID, "Произошла ошибка свзяи с db"))
 		return
 	}
 
@@ -44,7 +48,7 @@ func DaysHandler(ChatID int64, week, day string) {
 		res, err := db.Get(ChatID, "classes")
 		if err != nil {
 			log.Println(err)
-			Bot.Send(tgbotapi.NewMessage(ChatID, "Произошла ошибка свзяи с db"))
+			bot.Send(tgbotapi.NewMessage(ChatID, "Произошла ошибка свзяи с db"))
 			return
 		}
 
@@ -57,7 +61,7 @@ func DaysHandler(ChatID int64, week, day string) {
 		name, err := db.Get(ChatID, "name_teacher")
 		if err != nil {
 			log.Println(err)
-			Bot.Send(tgbotapi.NewMessage(ChatID, "Произошла ошибка свзяи с db"))
+			bot.Send(tgbotapi.NewMessage(ChatID, "Произошла ошибка свзяи с db"))
 			return
 		}
 
@@ -82,7 +86,7 @@ func ChoiceTimetableHandler(ChatId int64, msgId int, param, role string) {
 	}
 
 	if err != nil {
-		Bot.Send(tgbotapi.NewMessage(ChatId, "Ошибка связи с db"))
+		bot.Send(tgbotapi.NewMessage(ChatId, "Ошибка связи с db"))
 		log.Println(err)
 		return
 	}
@@ -95,5 +99,5 @@ func ChoiceTimetableHandler(ChatId int64, msgId int, param, role string) {
 			ChatId, msgId, fmt.Sprintf("Принято, %s", param))
 	}
 
-	Bot.Send(msg)
+	bot.Send(msg)
 }

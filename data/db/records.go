@@ -3,6 +3,7 @@ package db
 import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"log"
 	"time"
 )
 
@@ -20,7 +21,9 @@ type Records struct {
 var RecordsDB, _ = gorm.Open(sqlite.Open("data/db/records.db"), &gorm.Config{})
 
 func init() {
-	RecordsDB.AutoMigrate(&Records{})
+	if err := RecordsDB.AutoMigrate(&Records{}); err != nil {
+		log.Println("Не удалось создать БД")
+	}
 }
 
 func AddRecord(name, class, olimp, sub, teacher, stage string) error {

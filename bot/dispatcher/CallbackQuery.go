@@ -7,8 +7,8 @@ import (
 	"awesomeProject/data/db"
 	"fmt"
 
-	handler "awesomeProject/bot/bot_timetable"
-	trackerHandler "awesomeProject/bot/bot_tracker"
+	handler "awesomeProject/bot/botSchedule"
+	trackerHandler "awesomeProject/bot/botTracker"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
@@ -55,23 +55,23 @@ func MenuCallbackQuery(query *tgbotapi.CallbackQuery, lstQ []string) {
 		switch lstQ[2] {
 		case "Получить расписание":
 			msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Какое именно", bot.MenuChoiceModeScheduleKeyboard)
-			Bot.Send(msg)
+			bot.Send(msg)
 		case "Сменить бота":
 			msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Выберите бота", callbacks.BuilderChoiceBot)
-			Bot.Send(msg)
+			bot.Send(msg)
 		case "Прочее":
 			msg := tgbotapi.NewEditMessageReplyMarkup(message.Chat.ID, message.MessageID, bot.MenuScheduleOtherBotKeyboard)
-			Bot.Send(msg)
+			bot.Send(msg)
 		case "Сегодня":
 			handler.Schedule(message, true)
 		case "Завтра":
 			handler.Schedule(message, false)
 		case "По дням":
 			handler.Days(message)
-			Bot.Request(tgbotapi.NewDeleteMessage(message.Chat.ID, message.MessageID))
+			bot.Request(tgbotapi.NewDeleteMessage(message.Chat.ID, message.MessageID))
 		case "Назад":
 			msg := tgbotapi.NewEditMessageReplyMarkup(message.Chat.ID, message.MessageID, bot.MenuScheduleBotKeyboard)
-			Bot.Send(msg)
+			bot.Send(msg)
 		case "Посмотреть неделю":
 			handler.Week(message, true)
 		case "Расписание звонков":
@@ -81,15 +81,17 @@ func MenuCallbackQuery(query *tgbotapi.CallbackQuery, lstQ []string) {
 		switch lstQ[2] {
 		case "Без фильтров":
 			//trackerHandler.AddRecord(query.Message, true)
-			db.AddTracker(message, "filter", "")
-			Bot.Send(
+			_ = db.AddTracker(message, "filter", "")
+			bot.Send(
 				tgbotapi.NewEditMessageTextAndMarkup(
-					message.Chat.ID, message.MessageID, "Выберите фильтр", callbacks.SomeGetSubjectsTracker))
+					message.Chat.ID, message.MessageID,
+					"Выберите фильтр", callbacks.SomeGetSubjectsTracker))
 		case "Несколько фильтров":
-			db.AddTracker(message, "filter", "")
-			Bot.Send(
+			_ = db.AddTracker(message, "filter", "")
+			bot.Send(
 				tgbotapi.NewEditMessageTextAndMarkup(
-					message.Chat.ID, message.MessageID, "Выберите фильтр", callbacks.SomeGetSubjectsTracker))
+					message.Chat.ID, message.MessageID,
+					"Выберите фильтр", callbacks.SomeGetSubjectsTracker))
 		case "Отфильтровать по олимпиаде":
 			will := bot.CopyInlineKeyboard(callbacks.BuilderGetOlimpsKeyboard)
 			will.InlineKeyboard = will.InlineKeyboard[:lexicon.OlimpListStep]
@@ -100,25 +102,27 @@ func MenuCallbackQuery(query *tgbotapi.CallbackQuery, lstQ []string) {
 				tgbotapi.NewInlineKeyboardButtonData(
 					lexicon.OlimpListRight, fmt.Sprintf("tracker;get;olimp;nil;0;%d;plus",
 						len(callbacks.BuilderGetOlimpsKeyboard.InlineKeyboard)))))
-			Bot.Send(tgbotapi.NewEditMessageTextAndMarkup(query.Message.Chat.ID,
+			bot.Send(tgbotapi.NewEditMessageTextAndMarkup(query.Message.Chat.ID,
 				query.Message.MessageID, "Выберите нужную олимпиаду", will))
 		case "Отфильтровать по предмету":
-			Bot.Send(
+			bot.Send(
 				tgbotapi.NewEditMessageTextAndMarkup(
 					query.Message.Chat.ID, query.Message.MessageID,
 					"Выберите нужную олимпиаду", callbacks.SortBuilderSubjectsKeyboard))
 		case "Отфильтровать по этапу":
-			Bot.Send(
+			bot.Send(
 				tgbotapi.NewEditMessageTextAndMarkup(
 					query.Message.Chat.ID, query.Message.MessageID,
 					"Выберите нужную олимпиаду", callbacks.SortBuilderStageKeyboard))
 		case "Отфильтровать по наставнику":
-			Bot.Send(
+			bot.Send(
 				tgbotapi.NewEditMessageTextAndMarkup(
 					query.Message.Chat.ID, query.Message.MessageID,
 					"Выберите нужную олимпиаду", callbacks.BuilderGetTeacherKeyboard))
 		case "Назад":
-			Bot.Send(tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Вот некоторые опции", bot.BuilderMenuTracker))
+			bot.Send(tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID,
+				message.MessageID, "Вот некоторые опции",
+				bot.BuilderMenuTracker))
 		case "Удалить":
 			trackerHandler.HandlerDeleteOlimpsMessage(message)
 		}
@@ -127,13 +131,15 @@ func MenuCallbackQuery(query *tgbotapi.CallbackQuery, lstQ []string) {
 		case "Добавить запись":
 			trackerHandler.AddRecord(message, true)
 		case "Просмотр записей":
-			Bot.Send(
+			bot.Send(
 				tgbotapi.NewEditMessageTextAndMarkup(
-					message.Chat.ID, message.MessageID, "Выберите фильтр", bot.BuilderChoiceTrackerFilter))
+					message.Chat.ID, message.MessageID,
+					"Выберите фильтр", bot.BuilderChoiceTrackerFilter))
 		case "Назад":
-			Bot.Send(
+			bot.Send(
 				tgbotapi.NewEditMessageTextAndMarkup(
-					message.Chat.ID, message.MessageID, "Выберите бота", callbacks.BuilderChoiceBot))
+					message.Chat.ID, message.MessageID,
+					"Выберите бота", callbacks.BuilderChoiceBot))
 		}
 	}
 }
