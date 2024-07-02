@@ -39,7 +39,7 @@ func AdminPanelHandler(query *tgbotapi.CallbackQuery, role string, someParams ..
 			bot.AdminPanelDB)
 		bot.Send(msg)
 	case "get_logs":
-		//...
+		bot.Request(tgbotapi.NewCallback(query.ID, "Логирование пока не настроено"))
 	case "shutdown":
 		bot.Request(tgbotapi.NewCallback(query.ID, "Бот выключен"))
 		os.Exit(0)

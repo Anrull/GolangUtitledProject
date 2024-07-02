@@ -2,6 +2,7 @@ package dispatcher
 
 import (
 	"awesomeProject/bot"
+	"awesomeProject/bot/feedback"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"time"
@@ -49,6 +50,7 @@ func Dispatcher(update *tgbotapi.Update) {
 	if update.CallbackQuery != nil {
 		query := update.CallbackQuery
 		lstQ := strings.Split(query.Data, ";")
+		fmt.Println(lstQ)
 		if lstQ[0] == "timetable" {
 			TimetableCallbackQuery(query, lstQ)
 		} else if lstQ[0] == "tracker" {
@@ -61,6 +63,8 @@ func Dispatcher(update *tgbotapi.Update) {
 			MenuCallbackQuery(query, lstQ)
 		} else if lstQ[0] == "admin" {
 			AdminPanelHandler(query, lstQ[1], lstQ...)
+		} else if lstQ[0] == "lesson" {
+			feedback.Handler(query.Message, lstQ...)
 		}
 		elapsedTime := time.Since(startTime)
 		slice = append(slice, elapsedTime)

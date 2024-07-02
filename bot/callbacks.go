@@ -21,6 +21,8 @@ var AdminPanelXLSX = tgbotapi.NewInlineKeyboardMarkup(
 	tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData(".db", "admin;mode;.db"),
 		tgbotapi.NewInlineKeyboardButtonData(".xlsx", "admin;mode;.xlsx")),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Назад", "admin;escape")),
 )
 
 var AdminPanelDB = tgbotapi.NewInlineKeyboardMarkup(
@@ -35,6 +37,8 @@ var AdminPanelDB = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardButtonData("Tracker", "admin;tracker"),
 		tgbotapi.NewInlineKeyboardButtonData("Students", "admin;students"),
 	),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Назад", "admin;escape")),
 )
 
 var AdminPanelEscape = tgbotapi.NewInlineKeyboardMarkup(

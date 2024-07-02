@@ -2,6 +2,7 @@ package dispatcher
 
 import (
 	"awesomeProject/bot"
+	"awesomeProject/bot/feedback"
 	"awesomeProject/data/db"
 	"os"
 
@@ -47,20 +48,9 @@ func CommandsHandling(message *tgbotapi.Message) {
 			bot.Send(msg)
 		}
 	case "db":
-		if message.Chat.ID == 1705933876 {
-			fileReader, _ := os.Open("data/db/users.db")
-			defer fileReader.Close()
-
-			inputFile := tgbotapi.FileReader{
-				Name:   "users.db",
-				Reader: fileReader,
-			}
-
-			msg := tgbotapi.NewDocument(message.Chat.ID, inputFile)
-			msg.Caption = "Database"
-
-			bot.Send(msg)
-		}
+		msg := tgbotapi.NewMessage(message.Chat.ID, "dfgtyhui")
+		msg.ReplyMarkup = feedback.GetFeedbackCallback("9B", "Геометрия", "09.05.2024")
+		bot.Send(msg)
 	default:
 		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Неизвестная команда (%s)", message.Text)))
 	}
