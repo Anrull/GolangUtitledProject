@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"awesomeProject/pkg/env"
 	"fmt"
 	"log"
 
@@ -8,7 +9,7 @@ import (
 )
 
 // var Bot, _ = tgbotapi.NewBotAPI("6510904282:AAHPDg_LN7_edScl1NoBbATdHKKQegpa8yI")
-var Bot, _ = tgbotapi.NewBotAPI("5965445771:AAElQV8vDRy8h0mRKniDCbL9E_uIb6feeUc")
+var Bot, _ = tgbotapi.NewBotAPI(env.GetValue("TOKEN"))
 
 func Send(c tgbotapi.Chattable) {
 	if _, err := Bot.Send(c); err != nil {

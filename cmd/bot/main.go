@@ -2,8 +2,9 @@ package main
 
 import (
 	"awesomeProject/bot"
-	handler "awesomeProject/bot/botSchedule"
 	"awesomeProject/bot/dispatcher"
+
+	handler "awesomeProject/bot/botSchedule"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 

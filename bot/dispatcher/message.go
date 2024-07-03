@@ -2,7 +2,6 @@ package dispatcher
 
 import (
 	"awesomeProject/bot"
-	"awesomeProject/bot/feedback"
 	"awesomeProject/data/db"
 	"os"
 
@@ -48,9 +47,7 @@ func CommandsHandling(message *tgbotapi.Message) {
 			bot.Send(msg)
 		}
 	case "db":
-		msg := tgbotapi.NewMessage(message.Chat.ID, "dfgtyhui")
-		msg.ReplyMarkup = feedback.GetFeedbackCallback("9B", "Геометрия", "09.05.2024")
-		bot.Send(msg)
+		//sch.SendFeedbackLessons(7)
 	default:
 		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Неизвестная команда (%s)", message.Text)))
 	}

@@ -10,8 +10,6 @@ import (
 	"strings"
 )
 
-var Bot = bot.Bot
-
 var slice []time.Duration
 
 func Dispatcher(update *tgbotapi.Update) {
