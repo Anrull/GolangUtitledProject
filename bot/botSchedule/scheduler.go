@@ -59,7 +59,7 @@ func TasksSchedule() {
 				true)
 		}
 
-		sendPhotoByte(user.UserID, photoByte)
+		SendPhotoByte(user.UserID, photoByte)
 	}
 }
 

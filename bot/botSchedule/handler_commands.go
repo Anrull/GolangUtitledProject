@@ -96,7 +96,7 @@ func Schedule(message *tgbotapi.Message, today bool) {
 				true)
 		}
 
-		sendPhotoByte(message.Chat.ID, photoByte)
+		SendPhotoByte(message.Chat.ID, photoByte)
 	}
 }
 
@@ -124,7 +124,7 @@ func Week(message *tgbotapi.Message, query bool) {
 	bot.Send(msg)
 }
 
-func sendPhotoByte(ChatID int64, photoBytes []byte) {
+func SendPhotoByte(ChatID int64, photoBytes []byte) {
 	_, err := Bot.Send(tgbotapi.NewPhoto(ChatID, tgbotapi.FileBytes{
 		Name:  "photo.jpg",
 		Bytes: photoBytes,

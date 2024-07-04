@@ -72,7 +72,7 @@ func DaysHandler(ChatID int64, week, day string) {
 				name, weeks[week], days[day]), true)
 	}
 
-	sendPhotoByte(ChatID, photoByte)
+	SendPhotoByte(ChatID, photoByte)
 }
 
 func ChoiceTimetableHandler(ChatId int64, msgId int, param, role string) {

@@ -1,7 +1,9 @@
 package dispatcher
 
 import (
+	"awesomeProject/backend/timetable"
 	"awesomeProject/bot"
+	"awesomeProject/bot/lexicon"
 	"awesomeProject/data/db"
 	"os"
 
@@ -80,10 +82,87 @@ func MessageHandler(message *tgbotapi.Message) {
 			log.Println(err)
 		}
 		if model == "bot-schedule" {
+			sliceMessage := strings.Split(message.Text, " ")
+			if isValid(message, sliceMessage, len(sliceMessage)) {
+				return
+			}
 			msg.ReplyMarkup = bot.MenuScheduleBotKeyboard
 		} else {
 			msg.ReplyMarkup = bot.BuilderMenuTracker
 		}
 		bot.Send(msg)
 	}
+}
+
+func isValid(message *tgbotapi.Message, slice []string, num int) bool {
+	if num == 3 {
+		if in(lexicon.Stages, slice[0]) {
+			if in([]string{"н", "ч"}, slice[1]) {
+				if in(lexicon.ListDays, slice[2]) {
+					if slice[1] == "н" {
+						slice[1] = "1"
+					} else {
+						slice[1] = "0"
+					}
+					lessons, err := timetable.GetTimetableText(slice[1],
+						lexicon.DayTextToInt[slice[2]], slice[0])
+					if err != nil {
+						log.Println(err)
+						return false
+					}
+					image, err := timetable.DrawTimetableTest(lessons,
+						fmt.Sprintf("%s, нед: %s, день: %s", slice[0], slice[1], slice[2]), false)
+					if err != nil {
+						log.Println(err)
+						return false
+					}
+					handler.SendPhotoByte(message.Chat.ID, image)
+					return true
+				}
+			}
+		}
+		return false
+	}
+	if num == 2 {
+		if in(lexicon.Stages, slice[0]) {
+			day := strings.ToLower(slice[1])
+			if in([]string{"сегодня", "завтра"}, day) {
+				week, err := timetable.GetWeek(false, true)
+				if err != nil {
+					log.Println(err)
+					return false
+				}
+				if day == "сегодня" {
+					day = timetable.GetDayToday()
+				} else {
+					day = timetable.GetDayTomorrow()
+				}
+				lessons, err := timetable.GetTimetableText(week, day, slice[0])
+				if err != nil {
+					log.Println(err)
+					return false
+				}
+				image, err := timetable.DrawTimetableTest(lessons,
+					fmt.Sprintf("%s, нед: %s, день: %s",
+						slice[0], lexicon.Week[week], lexicon.Day[day]), false)
+				if err != nil {
+					log.Println(err)
+					return false
+				}
+				handler.SendPhotoByte(message.Chat.ID, image)
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func in(slice []string, value string) bool {
+	for _, str := range slice {
+		if str == value {
+			return true
+		}
+	}
+	return false
 }
