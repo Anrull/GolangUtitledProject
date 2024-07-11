@@ -53,10 +53,12 @@ var MenuScheduleBotKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 		)),
 	tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData(
-			"Сменить бота", "menu;schedule;Сменить бота",
-		),
-		tgbotapi.NewInlineKeyboardButtonData(
 			"Прочее", "menu;schedule;Прочее",
+		),
+	),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData(
+			"Назад", "menu;schedule;Сменить бота",
 		),
 	),
 )

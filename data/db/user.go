@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"log"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -22,10 +23,14 @@ type User struct {
 	Temp        string `gorm:"column:temp;default=''"`
 	Bot         string `gorm:"column:bot;default=''"`
 	LastIDs     string `gorm:"column:last_ids;default=''"`
+	Admin       string `gorm:"column:admin;default='0'"`
 }
 
 func init() {
-	DB.AutoMigrate(&User{})
+	err := DB.AutoMigrate(&User{})
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func NewUser(message tgbotapi.Message) error {

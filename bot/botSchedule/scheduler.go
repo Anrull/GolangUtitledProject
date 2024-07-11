@@ -71,7 +71,7 @@ func SendFeedbackLessons(num int) {
 	}
 
 	week, err := timetable.GetWeek(false, true)
-	day := timetable.GetDayToday()
+	day := timetable.GetDayTodayFeedback()
 
 	for _, user := range users {
 		if user.Role != "student" {

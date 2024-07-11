@@ -9,7 +9,7 @@ import (
 
 func Handler(message *tgbotapi.Message, params ...string) {
 	if params[1] == "escape" {
-		bot.Send(tgbotapi.NewDeleteMessage(message.Chat.ID, message.MessageID))
+		bot.Bot.Send(tgbotapi.NewDeleteMessage(message.Chat.ID, message.MessageID))
 		return
 	}
 	userName := message.Chat.UserName

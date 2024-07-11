@@ -170,3 +170,8 @@ func GetDayToday() string {
 func GetDayTomorrow() string {
 	return dictDaysOfWeekTomorrow[time.Now().Weekday().String()]
 }
+
+func GetDayTodayFeedback() string {
+	date := time.Now()
+	return dictDaysOfWeek[date.Weekday().String()]
+}

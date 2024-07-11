@@ -9,6 +9,11 @@ import (
 )
 
 var Bot, _ = tgbotapi.NewBotAPI(env.GetValue("TOKEN"))
+var TechnicalWork bool
+
+func init() {
+	TechnicalWork = false
+}
 
 func Send(c tgbotapi.Chattable) {
 	if _, err := Bot.Send(c); err != nil {

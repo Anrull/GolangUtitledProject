@@ -92,11 +92,11 @@ func ChoiceTimetableHandler(ChatId int64, msgId int, param, role string) {
 	}
 
 	if role == "student" {
-		msg = tgbotapi.NewEditMessageText(
-			ChatId, msgId, fmt.Sprintf("Принято, ученик %s класса", param))
+		msg = tgbotapi.NewEditMessageTextAndMarkup(
+			ChatId, msgId, fmt.Sprintf("Принято, ученик %s класса", param), bot.MenuScheduleBotKeyboard)
 	} else {
-		msg = tgbotapi.NewEditMessageText(
-			ChatId, msgId, fmt.Sprintf("Принято, %s", param))
+		msg = tgbotapi.NewEditMessageTextAndMarkup(
+			ChatId, msgId, fmt.Sprintf("Принято, %s", param), bot.MenuScheduleBotKeyboard)
 	}
 
 	bot.Send(msg)

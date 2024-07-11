@@ -48,7 +48,20 @@ func CommandsHandling(message *tgbotapi.Message) {
 			msg.ReplyMarkup = bot.AdminPanel
 			bot.Send(msg)
 		}
-	case "db":
+	case "lock":
+		if message.Chat.ID == 1705933876 {
+			bot.TechnicalWork = true
+		}
+	case "unlock":
+		if message.Chat.ID == 1705933876 {
+			bot.TechnicalWork = false
+		}
+	case "profile":
+		builder := &strings.Builder{}
+		builder.WriteString("Имя: ")
+		builder.WriteString(message.Chat.UserName)
+		builder.WriteString("\n")
+		builder.WriteString("")
 		//sch.SendFeedbackLessons(7)
 	default:
 		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Неизвестная команда (%s)", message.Text)))
