@@ -47,7 +47,28 @@ func AddRecord(name, class, olimp, sub, teacher, stage string) error {
 
 func GetRecords(name, sub, olimp, stage, teacher string) (*[]Records, error) {
 	var records []Records
-	query := RecordsDB.Where("name = ?", name)
+	query := getQuery(name, sub, olimp, stage, teacher)
+
+	if err := query.Find(&records).Error; err != nil {
+		return nil, err
+	}
+
+	return &records, nil
+}
+
+func GetRecordsCount(name, sub, olimp, stage, teacher string) (int, error) {
+	var count int64
+	query := getQuery(name, sub, olimp, stage, teacher)
+
+	if err := query.Count(&count).Error; err != nil {
+		return 0, err
+	}
+
+	return int(count), nil
+}
+
+func getQuery(name, sub, olimp, stage, teacher string) *gorm.DB {
+	query := RecordsDB.Model(&Records{}).Where("name = ?", name)
 
 	if sub != "nil" {
 		query = query.Where("subjects LIKE ?", "%"+sub+"%")
@@ -62,9 +83,5 @@ func GetRecords(name, sub, olimp, stage, teacher string) (*[]Records, error) {
 		query = query.Where("teachers LIKE ?", "%"+teacher+"%")
 	}
 
-	if err := query.Find(&records).Error; err != nil {
-		return nil, err
-	}
-
-	return &records, nil
+	return query
 }

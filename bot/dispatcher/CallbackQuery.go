@@ -81,11 +81,13 @@ func MenuCallbackQuery(query *tgbotapi.CallbackQuery, lstQ []string) {
 		switch lstQ[2] {
 		case "Без фильтров":
 			//trackerHandler.AddRecord(query.Message, true)
-			_ = db.AddTracker(message, "filter", "")
-			bot.Send(
-				tgbotapi.NewEditMessageTextAndMarkup(
-					message.Chat.ID, message.MessageID,
-					"Выберите фильтр", callbacks.SomeGetSubjectsTracker))
+			//_ = db.AddTracker(message, "get_olimps",
+			//	"sub||nil;;olimp||nil;;stage||nil;;teacher||nil")
+			//bot.Send(
+			//	tgbotapi.NewEditMessageTextAndMarkup(
+			//		message.Chat.ID, message.MessageID,
+			//		"Выберите фильтр", callbacks.SomeGetSubjectsTracker))
+			trackerHandler.WithoutFiltersCallbacksHandler(message)
 		case "Несколько фильтров":
 			_ = db.AddTracker(message, "filter", "")
 			bot.Send(
@@ -123,8 +125,10 @@ func MenuCallbackQuery(query *tgbotapi.CallbackQuery, lstQ []string) {
 			bot.Send(tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID,
 				message.MessageID, "Вот некоторые опции",
 				bot.BuilderMenuTracker))
-		case "Удалить":
-			trackerHandler.HandlerDeleteOlimpsMessage(message)
+		//case "Удалить":
+		//	trackerHandler.HandlerDeleteOlimpsMessage(message)
+		case ".xlsx":
+			trackerHandler.GetTable(message)
 		}
 	} else if lstQ[1] == "tracker" {
 		switch lstQ[2] {

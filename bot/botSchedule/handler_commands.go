@@ -56,10 +56,15 @@ func Days(message *tgbotapi.Message) {
 }
 
 func Schedule(message *tgbotapi.Message, today bool) {
+	var week string
 	role, err := db.Get(message.Chat.ID, "role")
 	logging(message, err)
 
-	week, err := timetable.GetWeek(false, true)
+	if today {
+		week, err = timetable.GetWeek(false, true)
+	} else {
+		week, err = timetable.GetWeek(true, true)
+	}
 
 	if err != nil {
 		bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Кажется, идут каникулы :)"))

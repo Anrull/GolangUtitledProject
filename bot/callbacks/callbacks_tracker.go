@@ -53,7 +53,7 @@ var ButtonsAfterOlimps = tgbotapi.NewInlineKeyboardMarkup(
 		tgbotapi.NewInlineKeyboardButtonData(
 			"Назад", "menu;filter;Назад"),
 		tgbotapi.NewInlineKeyboardButtonData(
-			"Удалить", "menu;filter;Удалить")))
+			".xlsx", "menu;filter;.xlsx")))
 
 func init() {
 	BuilderSubjectsForTracker, SortBuilderSubjectsKeyboard, BuilderDeleteSubjectsForTreker, SomeGetSubjectsTracker = buttons("sub", "", lexicon.SubjectsForButton, 2, 1)

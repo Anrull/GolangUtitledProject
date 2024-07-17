@@ -57,12 +57,7 @@ func CommandsHandling(message *tgbotapi.Message) {
 			bot.TechnicalWork = false
 		}
 	case "profile":
-		builder := &strings.Builder{}
-		builder.WriteString("Имя: ")
-		builder.WriteString(message.Chat.UserName)
-		builder.WriteString("\n")
-		builder.WriteString("")
-		//sch.SendFeedbackLessons(7)
+		Profile(message)
 	default:
 		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Неизвестная команда (%s)", message.Text)))
 	}
@@ -140,14 +135,13 @@ func isValid(message *tgbotapi.Message, slice []string, num int) bool {
 		if in(lexicon.Stages, slice[0]) {
 			day := strings.ToLower(slice[1])
 			if in([]string{"сегодня", "завтра"}, day) {
-				week, err := timetable.GetWeek(false, true)
-				if err != nil {
-					log.Println(err)
-					return false
-				}
+				var week string
+
 				if day == "сегодня" {
+					week, _ = timetable.GetWeek(false, true)
 					day = timetable.GetDayToday()
 				} else {
+					week, _ = timetable.GetWeek(true, true)
 					day = timetable.GetDayTomorrow()
 				}
 				lessons, err := timetable.GetTimetableText(week, day, slice[0])

@@ -4,11 +4,9 @@ import (
 	"awesomeProject/bot"
 	"awesomeProject/data/db"
 	"database/sql"
+	"fmt"
 	"github.com/360EntSecGroup-Skylar/excelize"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"time"
-
-	"fmt"
 	"log"
 	"os"
 )
@@ -52,10 +50,11 @@ func getDB(ChatID int64, mode, format string) {
 	switch mode {
 	case "all":
 		if format == " .db" {
-			sendFile(ChatID, "data/db/users.db", "users.db", "")
-			sendFile(ChatID, "data/db/records.db", "records.db", "")
-			sendFile(ChatID, "data/db/tracker.db", "tracker.db", "")
-			sendFile(ChatID, "data/db/student.db", "students.db", "time")
+			bot.SendFile(ChatID, "data/db/users.db", "users.db", "")
+			bot.SendFile(ChatID, "data/db/records.db", "records.db", "")
+			bot.SendFile(ChatID, "data/db/tracker.db", "tracker.db", "")
+			bot.SendFile(ChatID, "data/db/student.db", "students.db", "")
+			bot.SendFile(ChatID, "data/db/feedback.db", "feedback.db", "time")
 		} else {
 			err := exportToXLSX("data/db/users.db", "data/temp/users.xlsx", "users")
 			if err != nil {
@@ -77,76 +76,74 @@ func getDB(ChatID int64, mode, format string) {
 				log.Println(err)
 				return
 			}
+			err = exportToXLSX("data/db/feedback.db", "data/temp/feedback.xlsx", "feedback_lessons")
+			if err != nil {
+				log.Println(err)
+				return
+			}
 
-			sendFile(ChatID, "data/temp/users.xlsx", "users.xlsx", "time")
-			sendFile(ChatID, "data/temp/records.xlsx", "records.xlsx", "time")
-			sendFile(ChatID, "data/temp/tracker.xlsx", "tracker.xlsx", "time")
-			sendFile(ChatID, "data/temp/student.xlsx", "student.xlsx", "time")
+			bot.SendFile(ChatID, "data/temp/feedback.xlsx", "feedback.xlsx", "time")
+			bot.SendFile(ChatID, "data/temp/users.xlsx", "users.xlsx", "time")
+			bot.SendFile(ChatID, "data/temp/records.xlsx", "records.xlsx", "time")
+			bot.SendFile(ChatID, "data/temp/tracker.xlsx", "tracker.xlsx", "time")
+			bot.SendFile(ChatID, "data/temp/student.xlsx", "student.xlsx", "time")
 		}
 	case "users":
 		if format == " .db" {
-			sendFile(ChatID, "data/db/users.db", "users.db", "time")
+			bot.SendFile(ChatID, "data/db/users.db", "users.db", "time")
 		} else {
 			err := exportToXLSX("data/db/users.db", "data/temp/users.xlsx", "users")
 			if err != nil {
 				log.Println(err)
 				return
 			}
-			sendFile(ChatID, "data/temp/users.xlsx", "users.xlsx", "time")
+			bot.SendFile(ChatID, "data/temp/users.xlsx", "users.xlsx", "time")
 		}
 	case "records":
 		if format == " .db" {
-			sendFile(ChatID, "data/db/records.db", "records.db", "time")
+			bot.SendFile(ChatID, "data/db/records.db", "records.db", "time")
 		} else {
 			err := exportToXLSX("data/db/records.db", "data/temp/records.xlsx", "records")
 			if err != nil {
 				log.Println(err)
 				return
 			}
-			sendFile(ChatID, "data/temp/records.xlsx", "records.xlsx", "time")
+			bot.SendFile(ChatID, "data/temp/records.xlsx", "records.xlsx", "time")
 		}
 	case "tracker":
 		if format == " .db" {
-			sendFile(ChatID, "data/db/tracker.db", "tracker.db", "time")
+			bot.SendFile(ChatID, "data/db/tracker.db", "tracker.db", "time")
 		} else {
 			err := exportToXLSX("data/db/tracker.db", "data/temp/tracker.xlsx", "trackers")
 			if err != nil {
 				log.Println(err)
 				return
 			}
-			sendFile(ChatID, "data/temp/tracker.xlsx", "tracker.xlsx", "time")
+			bot.SendFile(ChatID, "data/temp/tracker.xlsx", "tracker.xlsx", "time")
 		}
 	case "students":
 		if format == " .db" {
-			sendFile(ChatID, "data/db/student.db", "students.db", "time")
+			bot.SendFile(ChatID, "data/db/student.db", "students.db", "time")
 		} else {
 			err := exportToXLSX("data/db/student.db", "data/temp/student.xlsx", "students")
 			if err != nil {
 				log.Println(err)
 				return
 			}
-			sendFile(ChatID, "data/temp/student.xlsx", "student.xlsx", "time")
+			bot.SendFile(ChatID, "data/temp/student.xlsx", "student.xlsx", "time")
+		}
+	case "fb":
+		if format == " .db" {
+			bot.SendFile(ChatID, "data/db/feedback.db", "feedback.db", "time")
+		} else {
+			err := exportToXLSX("data/db/feedback.db", "data/temp/feedback.xlsx", "feedback_lessons")
+			if err != nil {
+				log.Println(err)
+				return
+			}
+			bot.SendFile(ChatID, "data/temp/feedback.xlsx", "feedback.xlsx", "time")
 		}
 	}
-}
-
-func sendFile(ChatID int64, filename, title, Caption string) {
-	fileReader, _ := os.Open(filename)
-	defer fileReader.Close()
-
-	inputFile := tgbotapi.FileReader{
-		Name:   title,
-		Reader: fileReader,
-	}
-
-	msg := tgbotapi.NewDocument(ChatID, inputFile)
-	if Caption != "time" {
-		msg.Caption = Caption
-	} else {
-		msg.Caption = time.Now().Format("2006-01-02 15:04:05")
-	}
-
-	bot.Send(msg)
 }
 
 func exportToXLSX(dbPath, xlsxPath, tableName string) error {

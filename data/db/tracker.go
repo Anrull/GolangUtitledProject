@@ -43,6 +43,8 @@ func AddTracker(message *tgbotapi.Message, column, value string) error {
 		} else {
 			tracker.Olimps = ""
 		}
+	case "get_olimps":
+		tracker.LastIdOlimps = value
 	case "filter":
 		if value != "" {
 			if tracker.LastIdOlimps == "" {
@@ -90,4 +92,13 @@ func CreateNewTrackerUser(message *tgbotapi.Message, name, stage string) error {
 		return TrackerDB.Create(&newUser).Error
 	}
 	return nil
+}
+
+func GetInfoAboutPersonTracker(userID int64) (Tracker, error) {
+	var user Tracker
+	result := TrackerDB.First(&user, "user_id = ?", userID)
+	if result.Error != nil {
+		return Tracker{}, result.Error
+	}
+	return user, nil
 }

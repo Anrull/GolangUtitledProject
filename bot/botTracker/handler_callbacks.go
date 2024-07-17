@@ -63,6 +63,12 @@ func SubjectsCallbacksHandler(message *tgbotapi.Message, method, index string) {
 		logging(message, err)
 		sub := lexicon.SubjectsForButton[i]
 		name, err := db.GetTracker(message, "name")
+		err = db.AddTracker(message, "get_olimps",
+			fmt.Sprintf("sub||%s;;olimp||nil;;stage||nil;;teacher||%s", sub))
+		if err != nil {
+			logging(message, err)
+			return
+		}
 		records, err := db.GetRecords(name, sub, "nil", "nil", "nil")
 		if err != nil {
 			logging(message, err)
@@ -150,6 +156,12 @@ func OlimpsCallbacksHandler(message *tgbotapi.Message, status, spifMin, spifMax,
 		logging(message, err)
 		olimp := lexicon.TrackerOlimps[index]
 		name, err := db.GetTracker(message, "name")
+		err = db.AddTracker(message, "get_olimps",
+			fmt.Sprintf("sub||nil;;olimp||%s;;stage||nil;;teacher||nil", olimp))
+		if err != nil {
+			logging(message, err)
+			return
+		}
 		records, err := db.GetRecords(name, "nil", olimp, "nil", "nil")
 		if err != nil {
 			logging(message, err)
@@ -194,6 +206,12 @@ func StageCallbacksHandler(message *tgbotapi.Message, method, index string) {
 		logging(message, err)
 		stage := lexicon.StagesTracker[i]
 		name, err := db.GetTracker(message, "name")
+		err = db.AddTracker(message, "get_olimps",
+			fmt.Sprintf("sub||nil;;olimp||nil;;stage||%s;;teacher||nil", stage))
+		if err != nil {
+			logging(message, err)
+			return
+		}
 		records, err := db.GetRecords(name, "nil", "nil", stage, "nil")
 		if err != nil {
 			logging(message, err)
@@ -228,6 +246,12 @@ func TeachersCallbacksHandler(message *tgbotapi.Message, method, index string) {
 		logging(message, err)
 		teacher := lexicon.TeacherTracker[i]
 		name, err := db.GetTracker(message, "name")
+		err = db.AddTracker(message, "get_olimps",
+			fmt.Sprintf("sub||nil;;olimp||nil;;stage||nil;;teacher||%s", teacher))
+		if err != nil {
+			logging(message, err)
+			return
+		}
 		records, err := db.GetRecords(name, "nil", "nil", "nil", teacher)
 		if err != nil {
 			logging(message, err)
@@ -254,40 +278,7 @@ func TeachersCallbacksHandler(message *tgbotapi.Message, method, index string) {
 		}
 		slice := strings.Split(textSlice, ";;")
 
-		text := "Подтвердите правильность фильтров:\n"
-		var sub, olimp, stage, teacher string
-		for _, v := range slice {
-			vv := strings.Split(v, "||")
-			if vv[0] == "sub" {
-				sub = vv[1]
-				if vv[1] == "nil" {
-					text += "Предмет не указан\n"
-				} else {
-					text += vv[1] + "\n"
-				}
-			} else if vv[0] == "olimp" {
-				olimp = vv[1]
-				if vv[1] == "nil" {
-					text += "Олимпиада не указана\n"
-				} else {
-					text += vv[1] + "\n"
-				}
-			} else if vv[0] == "stage" {
-				stage = vv[1]
-				if vv[1] == "nil" {
-					text += "Этап не указан\n"
-				} else {
-					text += vv[1] + "\n"
-				}
-			} else if vv[0] == "teacher" {
-				teacher = vv[1]
-				if vv[1] == "nil" {
-					text += "Наставник не указан\n"
-				} else {
-					text += vv[1]
-				}
-			}
-		}
+		sub, olimp, stage, teacher := getSettings(slice)
 
 		name, err := db.GetTracker(message, "name")
 		if err != nil {
@@ -301,6 +292,22 @@ func TeachersCallbacksHandler(message *tgbotapi.Message, method, index string) {
 		}
 		sendOlimps(message, name, records)
 	}
+}
+
+func WithoutFiltersCallbacksHandler(message *tgbotapi.Message) {
+	name, _ := db.GetTracker(message, "name")
+	err := db.AddTracker(message, "get_olimps",
+		"sub||nil;;olimp||nil;;stage||nil;;teacher||nil")
+	if err != nil {
+		logging(message, err)
+		return
+	}
+	records, err := db.GetRecords(name, "nil", "nil", "nil", "nil")
+	if err != nil {
+		logging(message, err)
+		return
+	}
+	sendOlimps(message, name, records)
 }
 
 func logging(message *tgbotapi.Message, err error) {
@@ -318,8 +325,9 @@ func format(name, stage string, records *[]db.Records) []string {
 	builder.WriteString(name + ", " + stage)
 	builder.WriteString("\n\n💬 Ваши олимпиады:")
 	var result []string
-	for _, record := range *records {
-		if len(builder.String()) > 4000 {
+	for i := len(*records) - 1; i >= 0; i-- {
+		record := (*records)[i]
+		if len(builder.String()) > 3800 {
 			result = append(result, builder.String())
 			builder.Reset()
 		}
@@ -346,6 +354,7 @@ func sendOlimps(message *tgbotapi.Message, name string, records *[]db.Records) {
 			message.Chat.ID, message.MessageID, res[0], callbacks.ButtonsAfterOlimps)
 		msg.ParseMode = tgbotapi.ModeHTML
 		bot.Send(msg)
+		return
 	}
 	for i, elem := range res[:len(res)-1] {
 		if i == 0 {
@@ -363,4 +372,23 @@ func sendOlimps(message *tgbotapi.Message, name string, records *[]db.Records) {
 	msg.ReplyMarkup = callbacks.ButtonsAfterOlimps
 	msg.ParseMode = tgbotapi.ModeHTML
 	bot.Send(msg)
+}
+
+func getSettings(slice []string) (string, string, string, string) {
+	var sub, olimp, stage, teacher string
+
+	for _, v := range slice {
+		vv := strings.Split(v, "||")
+		if vv[0] == "sub" {
+			sub = vv[1]
+		} else if vv[0] == "olimp" {
+			olimp = vv[1]
+		} else if vv[0] == "stage" {
+			stage = vv[1]
+		} else if vv[0] == "teacher" {
+			teacher = vv[1]
+		}
+	}
+
+	return sub, olimp, stage, teacher
 }
