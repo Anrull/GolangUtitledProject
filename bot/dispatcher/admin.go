@@ -2,6 +2,7 @@ package dispatcher
 
 import (
 	"awesomeProject/bot"
+	"awesomeProject/bot/feedback"
 	"awesomeProject/data/db"
 	"database/sql"
 	"fmt"
@@ -27,6 +28,9 @@ func AdminPanelHandler(query *tgbotapi.CallbackQuery, role string, someParams ..
 		msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID,
 			"Панель Администратора", bot.AdminPanel)
 		bot.Send(msg)
+	case "other":
+		msg := tgbotapi.NewEditMessageReplyMarkup(message.Chat.ID, message.MessageID, bot.AdminPanelShutdown)
+		bot.Send(msg)
 	case "get_db":
 		msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID,
 			"Панель Администратора\n\nВыберите формат", bot.AdminPanelXLSX)
@@ -41,6 +45,11 @@ func AdminPanelHandler(query *tgbotapi.CallbackQuery, role string, someParams ..
 	case "shutdown":
 		bot.Request(tgbotapi.NewCallback(query.ID, "Бот выключен"))
 		os.Exit(0)
+	case "fb":
+		msg := tgbotapi.NewEditMessageReplyMarkup(message.Chat.ID, message.MessageID, bot.AdminFB)
+		bot.Send(msg)
+	case "fbHandler":
+		feedback.HandlerInfo(message, someParams[2:]...)
 	default:
 		getDB(message.Chat.ID, role, message.Text[len(message.Text)-4:])
 	}

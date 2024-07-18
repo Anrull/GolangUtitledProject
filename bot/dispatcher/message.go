@@ -3,6 +3,7 @@ package dispatcher
 import (
 	"awesomeProject/backend/timetable"
 	"awesomeProject/bot"
+	"awesomeProject/bot/feedback"
 	"awesomeProject/bot/lexicon"
 	"awesomeProject/data/db"
 	"os"
@@ -36,6 +37,10 @@ func CommandsHandling(message *tgbotapi.Message) {
 		handler.Week(message, false)
 	case "add":
 		trackerHandler.AddRecord(message, false)
+	case "my_olimps":
+		msg := tgbotapi.NewMessage(message.Chat.ID, "Выберите фильтр")
+		msg.ReplyMarkup = bot.BuilderChoiceTrackerFilter
+		bot.Send(msg)
 	case "shutdown":
 		if message.Chat.ID == 1705933876 {
 			bot.Send(tgbotapi.NewMessage(1705933876, "Бот выключен"))
@@ -58,6 +63,10 @@ func CommandsHandling(message *tgbotapi.Message) {
 		}
 	case "profile":
 		Profile(message)
+	case "fb":
+		if message.Chat.ID == 1705933876 {
+			feedback.HandlerInfo(message, "nowWeek")
+		}
 	default:
 		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Неизвестная команда (%s)", message.Text)))
 	}

@@ -21,8 +21,9 @@ func Start(message *tgbotapi.Message) {
 	}
 
 	msg := tgbotapi.NewMessage(message.Chat.ID,
-		"Добро пожаловать в новую версию бота, написанную на языке программирования Golang!")
+		"Выберите бота\n\n<b><em>Бот-Расписание</em></b> позволяет просматривать расписание\n\n<b><em>Бот-Трекер</em></b> позволяет добавлять и отслеживать свой прогресс в РСОШ олимпиадах")
 	msg.ReplyMarkup = callbacks.BuilderChoiceBot
+	msg.ParseMode = tgbotapi.ModeHTML
 
 	bot.Send(msg)
 }

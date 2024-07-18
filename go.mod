@@ -6,6 +6,7 @@ require github.com/joho/godotenv v1.5.1
 
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1 // indirect
+	github.com/agnivade/levenshtein v1.1.1 // indirect
 	github.com/andybalholm/brotli v1.1.0 // indirect
 	github.com/bytedance/sonic v1.11.8 // indirect
 	github.com/bytedance/sonic/loader v0.1.1 // indirect
