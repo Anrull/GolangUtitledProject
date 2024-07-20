@@ -1,10 +1,12 @@
 package db
 
 import (
+	"awesomeProject/pkg/env"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
+	"strconv"
 
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -46,13 +48,27 @@ func NewUser(message tgbotapi.Message) error {
 		user.Username = username
 		return DB.Save(&user).Error
 	} else if result.Error == gorm.ErrRecordNotFound { // Пользователь не найден, создаем нового
-		newUser := User{
-			UserID:     userID,
-			Name:       name,
-			Username:   username,
-			Bot:        "bot-schedule",
-			Newsletter: "1",
+		var newUser = User{}
+
+		if fmt.Sprintf("%d", userID) == env.GetValue("SuperAdmin") {
+			newUser = User{
+				UserID:     userID,
+				Name:       name,
+				Username:   username,
+				Bot:        "bot-schedule",
+				Newsletter: "1",
+				Admin:      "SuperAdmin",
+			}
+		} else {
+			newUser = User{
+				UserID:     userID,
+				Name:       name,
+				Username:   username,
+				Bot:        "bot-schedule",
+				Newsletter: "1",
+			}
 		}
+
 		return DB.Create(&newUser).Error
 	} else {
 		return result.Error
@@ -85,6 +101,8 @@ func Get(ChatID int64, column string) (string, error) {
 		res = user.NameTeacher
 	case "temp":
 		res = user.Temp
+	case "admin":
+		res = user.Admin
 	}
 	return res, nil
 }
@@ -142,10 +160,36 @@ func Update(ChatID int64, column, value string) error {
 		user.NameTeacher = value
 	case "temp":
 		user.Temp = value
+	case "admin":
+		user.Admin = value
 	}
+
 	return DB.Save(&user).Error
 }
 
-//func main() {
-//	fmt.Println(Get(566, "username"))
-//}
+func GetAdminIds() ([]int64, error) {
+	var ids []int64
+
+	query := DB.Model(&User{}).Select("user_id").Where(
+		"admin = ? OR admin = ?", "admin", "SuperAdmin")
+	result := query.Find(&ids)
+
+	return ids, result.Error
+}
+
+func AddAdmin(value, column string) error {
+	if column == "nick" {
+		var user User
+		result := DB.First(&user, "username = ?", value)
+		if result.Error != nil {
+			return result.Error
+		}
+		user.Admin = "admin"
+		return DB.Save(&user).Error
+	}
+	userID, err := strconv.Atoi(value)
+	if err != nil {
+		return err
+	}
+	return Update(int64(userID), "admin", "admin")
+}

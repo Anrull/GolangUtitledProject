@@ -64,6 +64,10 @@ func TasksSchedule() {
 }
 
 func SendFeedbackLessons(num int) {
+	if !isTimeBefore(10, 0) {
+		return
+	}
+
 	num--
 	users, err := db.GetAllUsers()
 	if err != nil {
@@ -107,4 +111,17 @@ func LessonThree() {
 
 func LessonSeven() {
 	SendFeedbackLessons(7)
+}
+
+// функция принимает часы и минуты, сравнивает с текущим временем
+// и возвращает true если текущее время меньше или равно заданному
+func isTimeBefore(hour, minute int) bool {
+	// получаем текущее время
+	now := time.Now()
+
+	// создаем объект Time с текущей датой и переданными часами и минутами
+	targetTime := time.Date(now.Year(), now.Month(), now.Day(), hour, minute, 0, 0, time.UTC)
+
+	// сравниваем текущее время с заданным
+	return now.Before(targetTime) || now.Equal(targetTime)
 }

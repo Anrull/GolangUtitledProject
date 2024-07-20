@@ -123,7 +123,7 @@ func GetWeek(flag, res bool) (string, error) {
 		}
 	} else {
 		if date.Weekday() >= time.Friday {
-			date = date.AddDate(0, 0, -3)
+			date = date.AddDate(0, 0, 3)
 		}
 	}
 

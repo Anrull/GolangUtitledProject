@@ -43,6 +43,16 @@ func AdminPanelHandler(query *tgbotapi.CallbackQuery, role string, someParams ..
 	case "get_logs":
 		bot.Request(tgbotapi.NewCallback(query.ID, "Логирование пока не настроено"))
 	case "shutdown":
+		user, err := db.GetInfoAboutPerson(message.Chat.ID)
+		if err != nil {
+			return
+		}
+		
+		if user.Admin != "SuperAdmin" {
+			bot.Send(tgbotapi.NewMessage(message.Chat.ID, "У вас нет прав супер администратора"))
+			return
+		}
+
 		bot.Request(tgbotapi.NewCallback(query.ID, "Бот выключен"))
 		os.Exit(0)
 	case "fb":

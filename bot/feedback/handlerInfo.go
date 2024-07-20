@@ -29,11 +29,7 @@ func HandlerInfo(message *tgbotapi.Message, params ...string) {
 	messages = append(messages, tgbotapi.NewMessage(message.Chat.ID, text))
 
 	for _, i := range lexicon.Stages {
-		if params[0] == "nowWeek" {
-			records, err = db.GetFBLessonsByWeekTest(i, getWeekDates(time.Now()))
-		} else if params[0] == "lastWeek" {
-			records, err = db.GetFBLessonsByWeekTest(i, getPreviousWeekDates(time.Now()))
-		}
+		records, err = db.GetFBLessonsByWeekTest(i, getDates(params[0]))
 
 		if err != nil {
 			log.Println(err)
@@ -48,7 +44,7 @@ func HandlerInfo(message *tgbotapi.Message, params ...string) {
 		if len(result) == 0 {
 			continue
 		}
-		fmt.Println(result)
+		//fmt.Println(result)
 
 		builder := &strings.Builder{}
 		builder.WriteString("Класс: <b><em>")
@@ -175,7 +171,12 @@ func findMostCommonSubject(subjects []string) string {
 
 // getWeekDates возвращает слайс из строк, представляющих даты всех дней недели,
 // начиная с воскресенья, для заданного дня недели.
-func getWeekDates(date time.Time) []string {
+func getWeekDates(date time.Time, param ...string) []string {
+	if len(param) != 0 {
+		if param[0] == "lastWeek" {
+			date = date.AddDate(0, 0, -7)
+		}
+	}
 	// Определяем номер дня недели (0 - воскресенье, 1 - понедельник и т.д.)
 	dayOfWeek := int(date.Weekday())
 
@@ -197,11 +198,40 @@ func getWeekDates(date time.Time) []string {
 	return weekDates
 }
 
-func getPreviousWeekDates(date time.Time) []string {
-	// Отнимаем 7 дней от текущей даты, чтобы получить
-	// соответствующий день недели на прошлой неделе.
-	lastWeekDate := date.AddDate(0, 0, -7)
+// getMonthDates возвращает слайс из строк, представляющих даты всех дней месяца,
+// для заданного дня.
+func getMonthDates(date time.Time, param ...string) []string {
+	if len(param) != 0 {
+		if param[0] == "lastMonth" {
+			firstDayOfMonth := time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, date.Location())
 
-	// Вызываем getWeekDates с датой на прошлой неделе.
-	return getWeekDates(lastWeekDate)
+			// Вычитаем 1 день, чтобы получить последний день предыдущего месяца.
+			date = firstDayOfMonth.AddDate(0, 0, -1)
+		}
+	}
+
+	// Получаем первый день месяца.
+	firstDayOfMonth := time.Date(date.Year(), date.Month(), 1, 0, 0, 0, 0, date.Location())
+
+	// Получаем количество дней в месяце.
+	daysInMonth := time.Date(date.Year(), date.Month()+1, 0, 0, 0, 0, 0, date.Location()).Day()
+
+	// Создаем слайс для хранения дат.
+	monthDates := make([]string, daysInMonth)
+
+	// Заполняем слайс датами на весь месяц.
+	for i := 0; i < daysInMonth; i++ {
+		monthDates[i] = firstDayOfMonth.AddDate(0, 0, i).Format("2006-01-02")
+	}
+
+	return monthDates
+}
+
+func getDates(param string) []string {
+	if strings.Contains(param, "Week") {
+		return getWeekDates(time.Now(), param)
+	} else if strings.Contains(param, "Month") {
+		return getMonthDates(time.Now(), param)
+	}
+	return []string{}
 }

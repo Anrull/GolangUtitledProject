@@ -7,6 +7,7 @@ import (
 	"awesomeProject/bot/lexicon"
 	"awesomeProject/data/db"
 	"os"
+	"slices"
 
 	handler "awesomeProject/bot/botSchedule"
 	trackerHandler "awesomeProject/bot/botTracker"
@@ -42,31 +43,81 @@ func CommandsHandling(message *tgbotapi.Message) {
 		msg.ReplyMarkup = bot.BuilderChoiceTrackerFilter
 		bot.Send(msg)
 	case "shutdown":
-		if message.Chat.ID == 1705933876 {
+		ids, err := db.GetAdminIds()
+		if err != nil {
+			return
+		}
+
+		if slices.Contains(ids, message.Chat.ID) {
 			bot.Send(tgbotapi.NewMessage(1705933876, "Бот выключен"))
 			os.Exit(0)
 		}
 	case "admin":
-		if message.Chat.ID == 1705933876 {
+		ids, err := db.GetAdminIds()
+		if err != nil {
+			return
+		}
+
+		if slices.Contains(ids, message.Chat.ID) {
 			msg := tgbotapi.NewMessage(message.Chat.ID, "Панель Администратора")
 			msg.ReplyToMessageID = message.MessageID
 			msg.ReplyMarkup = bot.AdminPanel
 			bot.Send(msg)
 		}
 	case "lock":
-		if message.Chat.ID == 1705933876 {
+		ids, err := db.GetAdminIds()
+		if err != nil {
+			return
+		}
+
+		if slices.Contains(ids, message.Chat.ID) {
 			bot.TechnicalWork = true
 		}
 	case "unlock":
-		if message.Chat.ID == 1705933876 {
+		ids, err := db.GetAdminIds()
+		if err != nil {
+			return
+		}
+
+		if slices.Contains(ids, message.Chat.ID) {
 			bot.TechnicalWork = false
 		}
 	case "profile":
 		Profile(message)
 	case "fb":
-		if message.Chat.ID == 1705933876 {
+		ids, err := db.GetAdminIds()
+		if err != nil {
+			return
+		}
+
+		if slices.Contains(ids, message.Chat.ID) {
 			feedback.HandlerInfo(message, "nowWeek")
 		}
+	case "add_admin":
+		user, err := db.GetInfoAboutPerson(message.Chat.ID)
+		if err != nil {
+			return
+		}
+
+		if user.Admin != "SuperAdmin" {
+			bot.Send(tgbotapi.NewMessage(message.Chat.ID, "У вас нет прав супер администратора"))
+			return
+		}
+
+		msg := strings.Replace(message.Text, "/add_admin ", "", 1)
+		role := "id"
+		value := msg
+		if strings.Contains(msg, "@") {
+			role = "nick"
+			value = strings.Replace(msg, "@", "", 1)
+		}
+		err = db.AddAdmin(value, role)
+		if err != nil {
+			bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Не удалось добавить администратора (%s)", err.Error())))
+			log.Println(err)
+			return
+		}
+		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Администратор %s добавлен", value)))
 	default:
 		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Неизвестная команда (%s)", message.Text)))
 	}
