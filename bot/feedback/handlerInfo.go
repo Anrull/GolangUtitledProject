@@ -5,12 +5,15 @@ import (
 	"awesomeProject/bot/lexicon"
 	"awesomeProject/data/db"
 	"fmt"
-	"github.com/agnivade/levenshtein"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"math"
+	"os"
 	"strings"
 	"time"
+
+	"github.com/agnivade/levenshtein"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/xuri/excelize/v2"
 )
 
 func HandlerInfo(message *tgbotapi.Message, params ...string) {
@@ -24,9 +27,23 @@ func HandlerInfo(message *tgbotapi.Message, params ...string) {
 		text = "Анализ уроков за эту неделю"
 	} else if params[0] == "lastWeek" {
 		text = "Анализ уроков за прошлую неделю"
-	}
+	} else if params[0] == "lastMonth" {
+        text = "Анализ уроков за прошлый месяц"
+    } else if params[0] == "nowMonth" {
+        text = "Анализ уроков за этот месяц"
+    }
 
 	messages = append(messages, tgbotapi.NewMessage(message.Chat.ID, text))
+
+    f := excelize.NewFile()
+    
+    err = f.MergeCell("Sheet1", "A1", "H4")
+    if err != nil {
+        log.Println(err)
+        return
+    }
+    
+    f.SetCellValue("Sheet1", "A1", lexicon.InformationCaption)
 
 	for _, i := range lexicon.Stages {
 		records, err = db.GetFBLessonsByWeekTest(i, getDates(params[0]))
@@ -44,7 +61,16 @@ func HandlerInfo(message *tgbotapi.Message, params ...string) {
 		if len(result) == 0 {
 			continue
 		}
-		//fmt.Println(result)
+
+        startIndex := 1
+
+        index, _ := f.NewSheet(i)
+        f.SetActiveSheet(index)
+
+        f.SetCellValue(i, "A1", "Предмет")
+        f.SetCellValue(i, "B1", "Средняя оценка")
+        f.SetCellValue(i, "C1", "Не было уроков")
+        f.SetCellValue(i, "D1", "Количество оценок")
 
 		builder := &strings.Builder{}
 		builder.WriteString("Класс: <b><em>")
@@ -52,9 +78,13 @@ func HandlerInfo(message *tgbotapi.Message, params ...string) {
 		builder.WriteString("</em></b>\n\n")
 
 		for key := range result {
+            startIndex++
 			res := result[key]
+
 			builder.WriteString("<b><em>")
 			builder.WriteString(key)
+
+            f.SetCellValue(i, fmt.Sprintf("A%d", startIndex), key)
 
 			var count, count1, count2, count3, count4, count5 int
 			for _, j := range res {
@@ -78,15 +108,21 @@ func HandlerInfo(message *tgbotapi.Message, params ...string) {
 			mark := markLesson / float64(countLessons)
 
 			if !math.IsNaN(mark) {
+                f.SetCellValue(i, fmt.Sprintf("B%d", startIndex), fmt.Sprintf("%.2f", mark))
 				builder.WriteString(fmt.Sprintf("</em></b>\nСредняя оценка: %.2f\n", mark))
 			} else {
+                f.SetCellValue(i, fmt.Sprintf("B%d", startIndex), "Нет информации")
 				builder.WriteString("</em></b>\nНет информации\n")
 			}
 
 			builder.WriteString(fmt.Sprintf("Не было уроков %d раз\n", count))
 			builder.WriteString(fmt.Sprintf("Количество оценок %d раз\n\n", count+countLessons))
-		}
 
+            // f.SetCellValue(i, fmt.Sprintf("B%d", startIndex), fmt.Sprintf("%.2f", mark))
+            f.SetCellValue(i, fmt.Sprintf("C%d", startIndex), fmt.Sprintf("%d", count))
+            f.SetCellValue(i, fmt.Sprintf("D%d", startIndex), fmt.Sprintf("%d", count+countLessons))
+		}
+        
 		messages = append(messages, tgbotapi.NewMessage(message.Chat.ID, builder.String()))
 	}
 
@@ -94,6 +130,16 @@ func HandlerInfo(message *tgbotapi.Message, params ...string) {
 		msg.ParseMode = tgbotapi.ModeHTML
 		bot.Send(msg)
 	}
+
+    filename := "data/temp/fb.xlsx"
+    defer os.Remove(filename)
+
+    if err := f.SaveAs(filename); err != nil {
+        log.Println(err)
+        return
+    }
+
+    bot.SendFile(message.Chat.ID, filename, "Анализ уроков.xlsx", "time")
 }
 
 func findMostCommonSubjects(subjects []db.FeedbackLesson) map[string][]string {
