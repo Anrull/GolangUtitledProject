@@ -66,6 +66,16 @@ func init() {
 	}
 }
 
+// GetTimetableText retrieves the timetable for a given week, day, and text class.
+//
+// Parameters:
+// - week: The week of the timetable.
+// - day: The day of the timetable.
+// - textClass: The text class of the timetable.
+//
+// Returns:
+// - [][]string: The timetable for the given week, day, and text class.
+// - error: An error if the input parameters are invalid.
 func GetTimetableText(week, day, textClass string) ([][]string, error) {
 	if _, ok := table[week]; !ok {
 		return nil, fmt.Errorf("неверная неделя: %s", week)
@@ -80,6 +90,16 @@ func GetTimetableText(week, day, textClass string) ([][]string, error) {
 	return table[week][textClass][day], nil
 }
 
+// GetTimetableTeachersText retrieves the timetable for a given week, day, and teacher name.
+//
+// Parameters:
+// - name: The name of the teacher.
+// - week: The week of the timetable.
+// - day: The day of the timetable.
+//
+// Returns:
+// - [][]string: The timetable for the given week, day, and teacher name.
+// - error: An error if the input parameters are invalid.
 func GetTimetableTeachersText(name, week, day string) ([][]string, error) {
 	// Проверка наличия ключей
 	if _, ok := scheduleTeacher[week]; !ok {
@@ -112,7 +132,16 @@ func GetTimetableTeachersText(name, week, day string) ([][]string, error) {
 	return stringSlice, nil
 }
 
-// GetWeek первый параметр хз зачем, второй (true) если надо вернуть сразу число
+
+// GetWeek returns the week string based on the given flag and res.
+//
+// Parameters:
+// - flag: a boolean indicating whether to add or subtract days from the current date.
+// - res: a boolean indicating whether to return "н" or "0" or "1" based on the week.
+//
+// Returns:
+// - string: the week string.
+// - error: an error if the week is not found.
 func GetWeek(flag, res bool) (string, error) {
 	date := time.Now()
 	if !flag {
@@ -159,6 +188,10 @@ func GetNextWeek() (string, error) {
 	return week, nil
 }
 
+// GetDayToday returns the day of the week for today.
+//
+// No parameters.
+// Returns a string representing the day of the week.
 func GetDayToday() string {
 	date := time.Now()
 	if date.Hour() > 12 || (date.Hour() == 12 && date.Minute() >= 30) {
@@ -167,6 +200,10 @@ func GetDayToday() string {
 	return dictDaysOfWeek[date.Weekday().String()]
 }
 
+// GetDayTomorrow returns the day of the week for tomorrow.
+//
+// No parameters.
+// Returns a string representing the day of the week for tomorrow.
 func GetDayTomorrow() string {
 	return dictDaysOfWeekTomorrow[time.Now().Weekday().String()]
 }

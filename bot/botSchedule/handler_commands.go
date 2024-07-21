@@ -7,8 +7,9 @@ import (
 	"awesomeProject/bot/lexicon"
 	"awesomeProject/data/db"
 	"fmt"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 var Bot = bot.Bot
@@ -86,7 +87,7 @@ func Schedule(message *tgbotapi.Message, today bool) {
 			lessons, err := timetable.GetTimetableText(week, day, stage)
 			logging(message, err)
 
-			photoByte, _ = timetable.DrawTimetableTest(
+			photoByte, _ = timetable.DrawTimetable(
 				lessons, fmt.Sprintf("%s, нед: %s, день: %s",
 					stage, lexicon.Week[week], lexicon.Day[day]),
 				false)
@@ -97,7 +98,7 @@ func Schedule(message *tgbotapi.Message, today bool) {
 			lessons, err := timetable.GetTimetableTeachersText(teacher, week, day)
 			logging(message, err)
 
-			photoByte, _ = timetable.DrawTimetableTest(
+			photoByte, _ = timetable.DrawTimetable(
 				lessons, fmt.Sprintf("%s, нед: %s, день: %s", teacher, lexicon.Week[week], lexicon.Day[day]),
 				true)
 		}

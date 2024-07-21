@@ -3,14 +3,15 @@ package timetable
 import (
 	"bytes"
 	"fmt"
-	"github.com/golang/freetype/truetype"
-	"golang.org/x/image/font"
-	"golang.org/x/image/math/fixed"
 	"image"
 	"image/color"
 	"image/png"
 	"log"
 	"os"
+
+	"github.com/golang/freetype/truetype"
+	"golang.org/x/image/font"
+	"golang.org/x/image/math/fixed"
 )
 
 var dictTimetable = map[string]string{
@@ -39,6 +40,14 @@ func init() {
 	FontFace = truetype.NewFace(fontFace, &truetype.Options{Size: 20})
 }
 
+// addLabel adds a label to the image at the specified coordinates using the provided font, label, and color.
+//
+// Parameters:
+// - img: the image to draw on
+// - x, y: the coordinates where the label will be placed
+// - fontFace: the font to use for the label
+// - label: the text to be drawn
+// - color: the color of the label
 func addLabel(img *image.RGBA, x, y int, fontFace font.Face, label string, color color.Color) {
 	d := &font.Drawer{
 		Dst:  img,
@@ -49,7 +58,17 @@ func addLabel(img *image.RGBA, x, y int, fontFace font.Face, label string, color
 	d.DrawString(label)
 }
 
-func DrawTimetableTest(lessons [][]string, data string, teacher bool) ([]byte, error) {
+// DrawTimetable draws a timetable image based on the given lessons, data, and teacher flag.
+//
+// Parameters:
+// - lessons: a 2D slice of strings representing the lessons.
+// - data: a string representing additional data to be displayed on the image.
+// - teacher: a boolean flag indicating whether the timetable is for a teacher.
+//
+// Returns:
+// - []byte: the encoded image in PNG format.
+// - error: an error if encoding the image fails.
+func DrawTimetable(lessons [][]string, data string, teacher bool) ([]byte, error) {
 	var newLessons [][]string
 	count := 0
 	if teacher {

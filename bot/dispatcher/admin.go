@@ -6,12 +6,22 @@ import (
 	"awesomeProject/data/db"
 	"database/sql"
 	"fmt"
-	"github.com/360EntSecGroup-Skylar/excelize"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"log"
 	"os"
+	"strings"
+
+	"github.com/360EntSecGroup-Skylar/excelize"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+// AdminPanelHandler handles the callback query for the admin panel.
+//
+// Parameters:
+// - query: The callback query received from the user.
+// - role: The role of the user making the query.
+// - someParams: Additional parameters for the query.
+//
+// Returns nothing.
 func AdminPanelHandler(query *tgbotapi.CallbackQuery, role string, someParams ...string) {
 	message := query.Message
 
@@ -43,18 +53,7 @@ func AdminPanelHandler(query *tgbotapi.CallbackQuery, role string, someParams ..
 	case "get_logs":
 		bot.Request(tgbotapi.NewCallback(query.ID, "Логирование пока не настроено"))
 	case "shutdown":
-		user, err := db.GetInfoAboutPerson(message.Chat.ID)
-		if err != nil {
-			return
-		}
-		
-		if user.Admin != "SuperAdmin" {
-			bot.Send(tgbotapi.NewMessage(message.Chat.ID, "У вас нет прав супер администратора"))
-			return
-		}
-
-		bot.Request(tgbotapi.NewCallback(query.ID, "Бот выключен"))
-		os.Exit(0)
+		shutdown(message)
 	case "fb":
 		msg := tgbotapi.NewEditMessageReplyMarkup(message.Chat.ID, message.MessageID, bot.AdminFB)
 		bot.Send(msg)
@@ -65,6 +64,44 @@ func AdminPanelHandler(query *tgbotapi.CallbackQuery, role string, someParams ..
 	}
 }
 
+// AddAdmin adds an administrator based on the message received.
+//
+// Parameters:
+// - message: The message containing information about the user to be made an admin.
+// Returns nothing.
+func AddAdmin(message *tgbotapi.Message) {
+	user, err := db.GetInfoAboutPerson(message.Chat.ID)
+	if err != nil {
+		return
+	}
+
+	if user.Admin != "SuperAdmin" {
+		bot.Send(tgbotapi.NewMessage(message.Chat.ID, "У вас нет прав супер администратора"))
+		return
+	}
+
+	msg := strings.Replace(message.Text, "/add_admin ", "", 1)
+	role := "id"
+	value := msg
+	if strings.Contains(msg, "@") {
+		role = "nick"
+		value = strings.Replace(msg, "@", "", 1)
+	}
+	err = db.AddAdmin(value, role)
+	if err != nil {
+		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Не удалось добавить администратора (%s)", err.Error())))
+		log.Println(err)
+		return
+	}
+	bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Администратор %s добавлен", value)))
+}
+
+// getDB retrieves database files based on the specified mode and format.
+//
+// Parameters:
+// - ChatID: the ID of the chat.
+// - mode: the mode to determine which files to retrieve.
+// - format: the format of the files to retrieve.
 func getDB(ChatID int64, mode, format string) {
 	switch mode {
 	case "all":
@@ -165,6 +202,15 @@ func getDB(ChatID int64, mode, format string) {
 	}
 }
 
+// exportToXLSX exports the data from a SQLite database table to an XLSX file.
+//
+// Parameters:
+// - dbPath: the path to the SQLite database file.
+// - xlsxPath: the path to the XLSX file to be created.
+// - tableName: the name of the table in the database to export.
+//
+// Returns:
+// - error: an error if there was a problem opening the database, executing the query, or saving the XLSX file.
 func exportToXLSX(dbPath, xlsxPath, tableName string) error {
 	data, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
@@ -211,4 +257,19 @@ func exportToXLSX(dbPath, xlsxPath, tableName string) error {
 	}
 
 	return nil
+}
+
+func shutdown(message *tgbotapi.Message) {
+	user, err := db.GetInfoAboutPerson(message.Chat.ID)
+	if err != nil {
+		return
+	}
+
+	if user.Admin != "SuperAdmin" {
+		bot.Send(tgbotapi.NewMessage(message.Chat.ID, "У вас нет прав супер администратора"))
+		return
+	}
+
+	bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Бот выключен"))
+	os.Exit(0)
 }

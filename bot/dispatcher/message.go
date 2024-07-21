@@ -7,7 +7,6 @@ import (
 	"awesomeProject/bot/lexicon"
 	"awesomeProject/data/db"
 	"os"
-	"slices"
 
 	handler "awesomeProject/bot/botSchedule"
 	trackerHandler "awesomeProject/bot/botTracker"
@@ -15,9 +14,12 @@ import (
 	"fmt"
 	"log"
 	"regexp"
+	"slices"
+	"strconv"
 	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/xuri/excelize/v2"
 )
 
 func CommandsHandling(message *tgbotapi.Message) {
@@ -38,88 +40,62 @@ func CommandsHandling(message *tgbotapi.Message) {
 		handler.Week(message, false)
 	case "add":
 		trackerHandler.AddRecord(message, false)
+	case "newsletter":
+		value, err := db.Get(message.Chat.ID, "newsletter")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		if value == "1" {
+			msg := tgbotapi.NewMessage(message.Chat.ID, "Уведомления отключены")
+			msg.ReplyToMessageID = message.MessageID
+			bot.Send(msg)
+			err = db.Update(message.Chat.ID, "newsletter", "0")
+		} else {
+			msg := tgbotapi.NewMessage(message.Chat.ID, "Уведомления включены")
+			msg.ReplyToMessageID = message.MessageID
+			bot.Send(msg)
+			err = db.Update(message.Chat.ID, "newsletter", "1")
+		}
+		if err != nil {
+			bot.Send(tgbotapi.NewMessage(1705933876, err.Error()))
+			log.Println(err)
+		}
 	case "my_olimps":
 		msg := tgbotapi.NewMessage(message.Chat.ID, "Выберите фильтр")
 		msg.ReplyMarkup = bot.BuilderChoiceTrackerFilter
 		bot.Send(msg)
 	case "shutdown":
-		ids, err := db.GetAdminIds()
-		if err != nil {
-			return
-		}
-
-		if slices.Contains(ids, message.Chat.ID) {
-			bot.Send(tgbotapi.NewMessage(1705933876, "Бот выключен"))
-			os.Exit(0)
-		}
+		shutdown(message)
 	case "admin":
-		ids, err := db.GetAdminIds()
-		if err != nil {
-			return
-		}
-
-		if slices.Contains(ids, message.Chat.ID) {
+		if isAdmin(message) {
 			msg := tgbotapi.NewMessage(message.Chat.ID, "Панель Администратора")
 			msg.ReplyToMessageID = message.MessageID
 			msg.ReplyMarkup = bot.AdminPanel
 			bot.Send(msg)
 		}
 	case "lock":
-		ids, err := db.GetAdminIds()
-		if err != nil {
-			return
-		}
-
-		if slices.Contains(ids, message.Chat.ID) {
+		if isAdmin(message) {
 			bot.TechnicalWork = true
 		}
 	case "unlock":
-		ids, err := db.GetAdminIds()
-		if err != nil {
-			return
-		}
-
-		if slices.Contains(ids, message.Chat.ID) {
+		if isAdmin(message) {
 			bot.TechnicalWork = false
 		}
 	case "profile":
 		Profile(message)
 	case "fb":
-		ids, err := db.GetAdminIds()
-		if err != nil {
-			return
-		}
-
-		if slices.Contains(ids, message.Chat.ID) {
+		if isAdmin(message) {
 			feedback.HandlerInfo(message, "nowWeek")
 		}
 	case "add_admin":
-		user, err := db.GetInfoAboutPerson(message.Chat.ID)
-		if err != nil {
-			return
-		}
-
-		if user.Admin != "SuperAdmin" {
-			bot.Send(tgbotapi.NewMessage(message.Chat.ID, "У вас нет прав супер администратора"))
-			return
-		}
-
-		msg := strings.Replace(message.Text, "/add_admin ", "", 1)
-		role := "id"
-		value := msg
-		if strings.Contains(msg, "@") {
-			role = "nick"
-			value = strings.Replace(msg, "@", "", 1)
-		}
-		err = db.AddAdmin(value, role)
-		if err != nil {
-			bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Не удалось добавить администратора (%s)", err.Error())))
-			log.Println(err)
-			return
-		}
-		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Администратор %s добавлен", value)))
+		AddAdmin(message)
+	case "get_tracker":
+		getTracker(message)
+		defer os.Remove("data/temp/Все записи.xlsx")
 	default:
-		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Неизвестная команда (%s)", message.Text)))
+		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Неизвестная команда (%s)\nВоспользуйтесь /help", message.Text)))
 	}
 }
 
@@ -178,7 +154,7 @@ func isValid(message *tgbotapi.Message, slice []string, num int) bool {
 						log.Println(err)
 						return false
 					}
-					image, err := timetable.DrawTimetableTest(lessons,
+					image, err := timetable.DrawTimetable(lessons,
 						fmt.Sprintf("%s, нед: %s, день: %s", slice[0], slice[1], slice[2]), false)
 					if err != nil {
 						log.Println(err)
@@ -209,7 +185,7 @@ func isValid(message *tgbotapi.Message, slice []string, num int) bool {
 					log.Println(err)
 					return false
 				}
-				image, err := timetable.DrawTimetableTest(lessons,
+				image, err := timetable.DrawTimetable(lessons,
 					fmt.Sprintf("%s, нед: %s, день: %s",
 						slice[0], lexicon.Week[week], lexicon.Day[day]), false)
 				if err != nil {
@@ -226,10 +202,61 @@ func isValid(message *tgbotapi.Message, slice []string, num int) bool {
 }
 
 func in(slice []string, value string) bool {
-	for _, str := range slice {
-		if str == value {
+	return slices.Contains(slice, value)
+}
+
+func isAdmin(message *tgbotapi.Message) bool {
+	ids, err := db.GetAdminIds()
+		if err != nil {
+			return false
+		}
+
+		if slices.Contains(ids, message.Chat.ID) {
 			return true
 		}
+		return false
+}
+
+func getTracker(message *tgbotapi.Message, filenames ...string) {
+	if isAdmin(message) {
+		var filename string
+		if len(filenames) > 0 {
+			filename = filenames[0]
+		} else {
+			filename = "data/temp/Все записи.xlsx"
+		}
+		records, err := db.GetAllRecords()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		xlsx := excelize.NewFile()
+		sheet, err := xlsx.NewSheet("Sheet1")
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		xlsx.SetActiveSheet(sheet)
+
+		row := 1
+		for _, record := range *records {
+			xlsx.SetCellValue("Sheet1", "A"+strconv.Itoa(row), record.Date)
+			xlsx.SetCellValue("Sheet1", "B"+strconv.Itoa(row), record.Name)
+			xlsx.SetCellValue("Sheet1", "C"+strconv.Itoa(row), record.Class)
+			xlsx.SetCellValue("Sheet1", "D"+strconv.Itoa(row), record.Olimps)
+			xlsx.SetCellValue("Sheet1", "E"+strconv.Itoa(row), record.Stage)
+			xlsx.SetCellValue("Sheet1", "F"+strconv.Itoa(row), record.Subjects)
+			xlsx.SetCellValue("Sheet1", "G"+strconv.Itoa(row), record.Teachers)
+			row++
+		}
+
+		err = xlsx.SaveAs(filename)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+
+		bot.SendFile(message.Chat.ID, filename, "Все записи.xlsx", "time")
 	}
-	return false
 }

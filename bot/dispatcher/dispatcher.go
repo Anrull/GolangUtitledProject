@@ -3,12 +3,21 @@ package dispatcher
 import (
 	"awesomeProject/bot"
 	"awesomeProject/bot/feedback"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
 	"strings"
+
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
 func Dispatcher(update *tgbotapi.Update) {
 	if update.Message != nil {
+		if update.Message.Document != nil {
+			message := update.Message
+			if !isAdmin(message) { return }
+
+			FileHandler(message)
+			return
+		}
 		if !bot.TechnicalWork {
 			message := update.Message
 			if message.IsCommand() {
@@ -20,7 +29,7 @@ func Dispatcher(update *tgbotapi.Update) {
 		}
 		if update.Message.IsCommand() {
 			if update.Message.Command() == "unlock" {
-				if update.Message.Chat.ID == 1705933876 {
+				if isAdmin(update.Message) {
 					bot.TechnicalWork = false
 					return
 				}

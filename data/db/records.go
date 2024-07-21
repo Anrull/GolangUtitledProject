@@ -1,10 +1,13 @@
 package db
 
 import (
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	"database/sql"
 	"log"
 	"time"
+
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Records struct {
@@ -18,7 +21,9 @@ type Records struct {
 	Teachers string
 }
 
-var RecordsDB, _ = gorm.Open(sqlite.Open("data/db/records.db"), &gorm.Config{})
+var RecordsDB, _ = gorm.Open(sqlite.Open("data/db/records.db"), &gorm.Config{
+    Logger: logger.Default.LogMode(logger.Silent),
+})
 
 func init() {
 	if err := RecordsDB.AutoMigrate(&Records{}); err != nil {
@@ -26,9 +31,9 @@ func init() {
 	}
 }
 
-func AddRecord(name, class, olimp, sub, teacher, stage string) error {
+func AddRecord(name, class, olimp, sub, teacher, stage string, date ...string) error {
 	var record Records
-	result := DB.First(&record, "name = ?", name)
+	result := RecordsDB.First(&record, "name = ? AND class = ? AND olimps = ? AND stage = ? AND subjects = ? AND teachers = ?", name, class, olimp, stage, sub, teacher)
 	if result.Error == nil {
 		return nil
 	}
@@ -42,6 +47,11 @@ func AddRecord(name, class, olimp, sub, teacher, stage string) error {
 		Subjects: sub,
 		Teachers: teacher,
 	}
+
+	if len(date) > 0 {
+		newUser.Date = date[0]
+	}
+
 	return RecordsDB.Create(&newUser).Error
 }
 
@@ -84,4 +94,34 @@ func getQuery(name, sub, olimp, stage, teacher string) *gorm.DB {
 	}
 
 	return query
+}
+
+func GetAllRecords() (*[]Records, error) {
+	var records []Records
+
+	if err := RecordsDB.Find(&records).Error; err != nil {
+		return nil, err
+	}
+
+	return &records, nil
+}
+
+
+func DeleteAllRecords() error {
+	db, err := sql.Open("sqlite3", "data/db/records.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	// SQL-запрос для удаления всех данных из таблицы
+	sqlStatement := `DELETE FROM records`
+
+	// Выполнение запроса
+	_, err = db.Exec(sqlStatement)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

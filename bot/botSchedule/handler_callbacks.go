@@ -54,7 +54,7 @@ func DaysHandler(ChatID int64, week, day string) {
 
 		schedule, err = timetable.GetTimetableText(week, day, res)
 
-		photoByte, err = timetable.DrawTimetableTest(schedule,
+		photoByte, err = timetable.DrawTimetable(schedule,
 			fmt.Sprintf("%s, нед: %s, день: %s", res, weeks[week],
 				days[day]), false)
 	} else {
@@ -67,7 +67,7 @@ func DaysHandler(ChatID int64, week, day string) {
 
 		schedule, err = timetable.GetTimetableTeachersText(name, week, day)
 
-		photoByte, _ = timetable.DrawTimetableTest(schedule,
+		photoByte, _ = timetable.DrawTimetable(schedule,
 			fmt.Sprintf("%s, нед: %s, день: %s",
 				name, weeks[week], days[day]), true)
 	}
