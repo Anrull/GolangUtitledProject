@@ -69,6 +69,10 @@ func FileHandler(message *tgbotapi.Message) {
 		for i := startIndex; i < len(rows); i++ {
 			row := rows[i]
 			// Читаем значения в каждой колонке
+			if len(row) < 7 {
+				bot.Send(tgbotapi.NewEditMessageText(message.Chat.ID, msg.MessageID, "Неверный формат"))
+				return
+			}
 			date := row[0]
 			name := row[1]
 			class := row[2]
@@ -76,8 +80,8 @@ func FileHandler(message *tgbotapi.Message) {
 			stage := row[4]
 			subject := row[5]
 			teacher := row[6]
-			
-			err = db.AddRecord(name, class, olimp, stage, subject, teacher, date)
+
+			err = db.AddRecord(name, class, olimp, subject, teacher, stage, date)
 			if err != nil {
 				log.Println("Error add record: ", err)
 			}
@@ -91,28 +95,28 @@ func downloadFile(path string, document *tgbotapi.Document) error {
 	file, err := os.Create(path)
 	if err != nil {
 		return fmt.Errorf("Error creating file:", err)
-		
+
 	}
 	defer file.Close()
 
 	// Get the file from the Telegram API
 	fileBytes, err := bot.Bot.GetFileDirectURL(document.FileID)
 	if err != nil {
-			return fmt.Errorf("Error getting file URL:", err)
+		return fmt.Errorf("Error getting file URL:", err)
 	}
 
 	// Download the file
 	resp, err := http.Get(fileBytes)
 	if err != nil {
-			return fmt.Errorf("Error downloading file:", err)
+		return fmt.Errorf("Error downloading file:", err)
 	}
 	defer resp.Body.Close()
 
 	// Write the file to disk
 	_, err = io.Copy(file, resp.Body)
 	if err != nil {
-			return fmt.Errorf("Error saving file:", err)
+		return fmt.Errorf("Error saving file:", err)
 	}
-	
+
 	return nil
 }

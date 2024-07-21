@@ -11,6 +11,8 @@ import (
 )
 
 func AddRecord(message *tgbotapi.Message, q bool) {
+	_ = db.AddTracker(message, "olimps", "")
+	
 	if !q {
 		msg := tgbotapi.NewMessage(message.Chat.ID, "Выберите предмет")
 		msg.ReplyMarkup = callbacks.BuilderSubjectsForTracker

@@ -117,26 +117,31 @@ func getDB(ChatID int64, mode, format string) {
 				log.Println(err)
 				return
 			}
+			defer os.Remove("data/temp/users.xlsx")
 			err = exportToXLSX("data/db/records.db", "data/temp/records.xlsx", "records")
 			if err != nil {
 				log.Println(err)
 				return
 			}
+			defer os.Remove("data/temp/records.xlsx")
 			err = exportToXLSX("data/db/tracker.db", "data/temp/tracker.xlsx", "trackers")
 			if err != nil {
 				log.Println(err)
 				return
 			}
+			defer os.Remove("data/temp/tracker.xlsx")
 			err = exportToXLSX("data/db/student.db", "data/temp/student.xlsx", "students")
 			if err != nil {
 				log.Println(err)
 				return
 			}
+			defer os.Remove("data/temp/student.xlsx")
 			err = exportToXLSX("data/db/feedback.db", "data/temp/feedback.xlsx", "feedback_lessons")
 			if err != nil {
 				log.Println(err)
 				return
 			}
+			defer os.Remove("data/temp/feedback.xlsx")
 
 			bot.SendFile(ChatID, "data/temp/feedback.xlsx", "feedback.xlsx", "time")
 			bot.SendFile(ChatID, "data/temp/users.xlsx", "users.xlsx", "time")
@@ -153,6 +158,7 @@ func getDB(ChatID int64, mode, format string) {
 				log.Println(err)
 				return
 			}
+			defer os.Remove("data/temp/users.xlsx")
 			bot.SendFile(ChatID, "data/temp/users.xlsx", "users.xlsx", "time")
 		}
 	case "records":
@@ -164,6 +170,7 @@ func getDB(ChatID int64, mode, format string) {
 				log.Println(err)
 				return
 			}
+			defer os.Remove("data/temp/records.xlsx")
 			bot.SendFile(ChatID, "data/temp/records.xlsx", "records.xlsx", "time")
 		}
 	case "tracker":
@@ -175,6 +182,7 @@ func getDB(ChatID int64, mode, format string) {
 				log.Println(err)
 				return
 			}
+			defer os.Remove("data/temp/tracker.xlsx")
 			bot.SendFile(ChatID, "data/temp/tracker.xlsx", "tracker.xlsx", "time")
 		}
 	case "students":
@@ -186,6 +194,7 @@ func getDB(ChatID int64, mode, format string) {
 				log.Println(err)
 				return
 			}
+			defer os.Remove("data/temp/student.xlsx")
 			bot.SendFile(ChatID, "data/temp/student.xlsx", "student.xlsx", "time")
 		}
 	case "fb":
@@ -197,6 +206,7 @@ func getDB(ChatID int64, mode, format string) {
 				log.Println(err)
 				return
 			}
+			defer os.Remove("data/temp/feedback.xlsx")
 			bot.SendFile(ChatID, "data/temp/feedback.xlsx", "feedback.xlsx", "time")
 		}
 	}
