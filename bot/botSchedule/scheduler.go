@@ -39,7 +39,7 @@ func TasksSchedule() {
 		var photoByte []byte
 
 		role, _ := db.Get(user.UserID, "role")
-		week, _ := timetable.GetWeek(true, true)
+		week, _ := timetable.GetWeek(false, true)
 		day := timetable.GetDayTomorrow()
 
 		if role == "student" {

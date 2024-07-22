@@ -12,13 +12,11 @@ var (
 	OlimpListRight = "➡️"
 )
 
-var HelpMessage string
-
-var InformationCaption string
-
-var TimetableTime string
-
-var SubjectsForButton []string
+var (
+    HelpMessage string
+    InformationCaption string
+    TimetableTime string
+)
 
 var ListDays []string
 var Stages []string
@@ -27,12 +25,10 @@ var Week map[string]string
 var DayTextToInt map[string]string
 var Day map[string]string
 
+var SubjectsForButton []string
 var StagesTracker []string
-
 var TeacherTracker []string
-
 var TrackerOlimps []string
-
 
 func init() {
 	data, err := os.ReadFile("data/lexicon.json")
