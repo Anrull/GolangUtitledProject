@@ -1,12 +1,17 @@
 package db
 
 import (
+	"fmt"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
-var TrackerDB, _ = gorm.Open(sqlite.Open("data/db/tracker.db"), &gorm.Config{})
+var TrackerDB, _ = gorm.Open(sqlite.Open("data/db/tracker.db"), &gorm.Config{
+    Logger: logger.Default.LogMode(logger.Silent),
+})
 
 type Tracker struct {
 	gorm.Model
@@ -59,6 +64,27 @@ func AddTracker(message *tgbotapi.Message, column, value string) error {
 	return TrackerDB.Save(&tracker).Error
 }
 
+func GetTrackerById(id int64, column string) (string, error) {
+	var tracker Tracker
+	result := TrackerDB.First(&tracker, "user_id = ?", id)
+	if result.Error != nil {
+		return "", result.Error
+	}
+	var res string
+	switch column {
+	case "delete_olimps":
+		res = tracker.DeleteOlimps
+	case "olimps":
+		res = tracker.Olimps
+	case "name":
+		res = tracker.Name
+	case "stage":
+		res = tracker.Stage
+	case "filter":
+		res = tracker.LastIdOlimps
+	}
+	return res, nil
+}
 func GetTracker(message *tgbotapi.Message, column string) (string, error) {
 	var tracker Tracker
 	result := TrackerDB.First(&tracker, "user_id = ?", message.Chat.ID)
@@ -91,6 +117,17 @@ func CreateNewTrackerUser(message *tgbotapi.Message, name, stage string) error {
 		}
 		return TrackerDB.Create(&newUser).Error
 	}
+	return nil
+}
+
+func DeleteTrackerUser(message *tgbotapi.Message) error {
+	query := "DELETE FROM trackers WHERE user_id = $1"
+
+	err := TrackerDB.Exec(query, message.Chat.ID)
+	if err.Error != nil {
+		return fmt.Errorf("failed to delete user from TrackerDB: %v", err)
+	}
+
 	return nil
 }
 

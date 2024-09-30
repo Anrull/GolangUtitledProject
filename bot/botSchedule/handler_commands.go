@@ -29,6 +29,16 @@ func Start(message *tgbotapi.Message) {
 	bot.Send(msg)
 }
 
+func DeleteMe(message *tgbotapi.Message) {
+	err := db.DeleteTrackerUser(message)
+	if err != nil {
+		bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Неудалось удалить аккаунт"))
+		return
+	}
+
+	Start(message)
+}
+
 func Help(message *tgbotapi.Message) {
 	bot.Send(tgbotapi.NewMessage(message.Chat.ID, lexicon.HelpMessage))
 }
@@ -36,12 +46,13 @@ func Help(message *tgbotapi.Message) {
 func Time(message *tgbotapi.Message, query bool) {
 	if !query {
 		msg := tgbotapi.NewMessage(message.Chat.ID, lexicon.TimetableTime)
+		msg.ReplyMarkup = callbacks.BuilderTimetableEscape
 		msg.ParseMode = tgbotapi.ModeHTML
 		bot.Send(msg)
 		return
 	}
 
-	msg := tgbotapi.NewEditMessageText(message.Chat.ID, message.MessageID, lexicon.TimetableTime)
+	msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, lexicon.TimetableTime, callbacks.BuilderTimetableEscape)
 	msg.ParseMode = tgbotapi.ModeHTML
 	bot.Send(msg)
 }
@@ -122,11 +133,12 @@ func Week(message *tgbotapi.Message, query bool) {
 	if !query {
 		msg := tgbotapi.NewMessage(message.Chat.ID, text)
 		msg.ParseMode = tgbotapi.ModeHTML
+		msg.ReplyMarkup = callbacks.BuilderTimetableEscape
 		bot.Send(msg)
 		return
 	}
 
-	msg := tgbotapi.NewEditMessageText(message.Chat.ID, message.MessageID, text)
+	msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, text, callbacks.BuilderTimetableEscape)
 	msg.ParseMode = tgbotapi.ModeHTML
 	bot.Send(msg)
 }

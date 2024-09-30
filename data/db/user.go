@@ -9,9 +9,12 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
-var DB, _ = gorm.Open(sqlite.Open("data/db/users.db"), &gorm.Config{})
+var DB, _ = gorm.Open(sqlite.Open("data/db/users.db"), &gorm.Config{
+    Logger: logger.Default.LogMode(logger.Silent),
+})
 
 type User struct {
 	gorm.Model
@@ -123,6 +126,15 @@ func GetAllUsers() ([]User, error) {
 		return nil, result.Error
 	}
 	return users, nil
+}
+
+func GetChatID(username string) (int64, error) {
+	var user User
+	result := DB.First(&user, "username = ?", username)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	return user.UserID, nil
 }
 
 func GetInfoAboutPerson(userID int64) (User, error) {

@@ -106,11 +106,11 @@ func getDB(ChatID int64, mode, format string) {
 	switch mode {
 	case "all":
 		if format == " .db" {
-			bot.SendFile(ChatID, "data/db/users.db", "users.db", "")
-			bot.SendFile(ChatID, "data/db/records.db", "records.db", "")
-			bot.SendFile(ChatID, "data/db/tracker.db", "tracker.db", "")
-			bot.SendFile(ChatID, "data/db/student.db", "students.db", "")
-			bot.SendFile(ChatID, "data/db/feedback.db", "feedback.db", "time")
+			bot.SendFile(ChatID, "data/db/users.db", "users.db", "", false)
+			bot.SendFile(ChatID, "data/db/records.db", "records.db", "", false)
+			bot.SendFile(ChatID, "data/db/tracker.db", "tracker.db", "", false)
+			bot.SendFile(ChatID, "data/db/student.db", "students.db", "", false)
+			bot.SendFile(ChatID, "data/db/feedback.db", "feedback.db", "time", false)
 		} else {
 			err := exportToXLSX("data/db/users.db", "data/temp/users.xlsx", "users")
 			if err != nil {
@@ -151,7 +151,7 @@ func getDB(ChatID int64, mode, format string) {
 		}
 	case "users":
 		if format == " .db" {
-			bot.SendFile(ChatID, "data/db/users.db", "users.db", "time")
+			bot.SendFile(ChatID, "data/db/users.db", "users.db", "time", false)
 		} else {
 			err := exportToXLSX("data/db/users.db", "data/temp/users.xlsx", "users")
 			if err != nil {
@@ -163,7 +163,7 @@ func getDB(ChatID int64, mode, format string) {
 		}
 	case "records":
 		if format == " .db" {
-			bot.SendFile(ChatID, "data/db/records.db", "records.db", "time")
+			bot.SendFile(ChatID, "data/db/records.db", "records.db", "time", false)
 		} else {
 			err := exportToXLSX("data/db/records.db", "data/temp/records.xlsx", "records")
 			if err != nil {
@@ -175,7 +175,7 @@ func getDB(ChatID int64, mode, format string) {
 		}
 	case "tracker":
 		if format == " .db" {
-			bot.SendFile(ChatID, "data/db/tracker.db", "tracker.db", "time")
+			bot.SendFile(ChatID, "data/db/tracker.db", "tracker.db", "time", false)
 		} else {
 			err := exportToXLSX("data/db/tracker.db", "data/temp/tracker.xlsx", "trackers")
 			if err != nil {
@@ -187,7 +187,7 @@ func getDB(ChatID int64, mode, format string) {
 		}
 	case "students":
 		if format == " .db" {
-			bot.SendFile(ChatID, "data/db/student.db", "students.db", "time")
+			bot.SendFile(ChatID, "data/db/student.db", "students.db", "time", false)
 		} else {
 			err := exportToXLSX("data/db/student.db", "data/temp/student.xlsx", "students")
 			if err != nil {
@@ -199,7 +199,7 @@ func getDB(ChatID int64, mode, format string) {
 		}
 	case "fb":
 		if format == " .db" {
-			bot.SendFile(ChatID, "data/db/feedback.db", "feedback.db", "time")
+			bot.SendFile(ChatID, "data/db/feedback.db", "feedback.db", "time", false)
 		} else {
 			err := exportToXLSX("data/db/feedback.db", "data/temp/feedback.xlsx", "feedback_lessons")
 			if err != nil {

@@ -3,11 +3,15 @@ package db
 import (
 	"crypto/sha256"
 	"encoding/hex"
+
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
-var FamilyDB, _ = gorm.Open(sqlite.Open("data/db/student.db"), &gorm.Config{})
+var FamilyDB, _ = gorm.Open(sqlite.Open("data/db/student.db"), &gorm.Config{
+    Logger: logger.Default.LogMode(logger.Silent),
+})
 
 type Students struct {
 	gorm.Model

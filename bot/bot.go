@@ -46,11 +46,13 @@ func Request(c tgbotapi.Chattable) {
 // - filename: the name of the file to send
 // - title: the title of the file
 // - Caption: the caption for the file. If Caption is "time", the caption will be the current time in the format "2006-01-02 15:04:05".
-func SendFile(ChatID int64, filename, title, Caption string) {
+func SendFile(ChatID int64, filename, title, Caption string, flag ...bool) {
 	fileReader, _ := os.Open(filename)
-	err := os.Remove(filename)
-	if err != nil {
-		log.Println("Ошибка при удалении файла:", err)
+	if len(flag) == 0 {
+		err := os.Remove(filename)
+		if err != nil {
+			log.Println("Ошибка при удалении файла:", err)
+		}
 	}
 	defer fileReader.Close()
 

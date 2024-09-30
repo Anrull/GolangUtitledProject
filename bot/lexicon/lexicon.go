@@ -37,15 +37,15 @@ func init() {
 	}
 
 	var values struct {
-		HelpMessage         string `json:"help_message"`
-		InformationCaption  string `json:"information_caption"`
-		TimetableTime        string    `json:"timetable_time"`
+		HelpMessage          string `json:"help_message"`
+		InformationCaption   string `json:"information_caption"`
+		TimetableTime        string    `json:"schedule_time"`
 		SubjectsForButton    []string  `json:"subjects"`
-		ListDays               []string `json:"list_days"`
+		ListDays             []string `json:"list_days"`
 		Stages               []string `json:"classes"`
 		Week                 map[string]string `json:"week"`
 		DayTextToInt         map[string]string `json:"days_to_int"`
-		Days                  map[string]string `json:"int_to_days"`
+		Days                 map[string]string `json:"int_to_days"`
 		StagesTracker        []string `json:"stages_tracker"`
 		TeacherTracker       []string `json:"teachers_tracker"`
 		TrackerOlimps        []string `json:"tracker_olimps"`

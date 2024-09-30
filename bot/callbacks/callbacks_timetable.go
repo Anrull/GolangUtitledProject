@@ -18,6 +18,12 @@ var BuilderWhoAreYou = tgbotapi.NewInlineKeyboardMarkup(
 	),
 )
 
+var BuilderTimetableEscape = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Назад", "menu;schedule;Назад"),
+	),
+)
+
 var BuilderChoiceStage = tgbotapi.NewInlineKeyboardMarkup()   // BuilderChoiceStage Выбор класса для расписания
 var BuilderChoiceTeacher = tgbotapi.NewInlineKeyboardMarkup() // BuilderChoiceTeacher Выбор учителя для расписания
 
@@ -68,7 +74,7 @@ func init() {
 		tgbotapi.NewInlineKeyboardRow(slice2[18:21]...),
 		tgbotapi.NewInlineKeyboardRow(slice2[21:24]...),
 		tgbotapi.NewInlineKeyboardRow(slice2[24:27]...),
-		tgbotapi.NewInlineKeyboardRow(slice2[27:30]...),
-		tgbotapi.NewInlineKeyboardRow(slice2[30:]...),
+		tgbotapi.NewInlineKeyboardRow(slice2[27:]...),
+		// tgbotapi.NewInlineKeyboardRow(slice2[30:]...),
 	)
 }

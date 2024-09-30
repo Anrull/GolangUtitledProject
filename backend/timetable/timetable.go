@@ -52,7 +52,7 @@ func init() {
 		fmt.Println("Ошибка парсинга JSON (учителя):", err)
 	}
 
-	dataWeeks, err := os.ReadFile("data/testWeeks.json")
+	dataWeeks, err := os.ReadFile("data/weeks.json")
 	if err != nil {
 		fmt.Println("Ошибка чтения файла (недели):", err)
 	}

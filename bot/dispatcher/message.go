@@ -24,6 +24,8 @@ import (
 
 func CommandsHandling(message *tgbotapi.Message) {
 	switch message.Command() {
+	case "delete_me":
+		handler.DeleteMe(message)
 	case "start":
 		handler.Start(message)
 	case "help":
@@ -95,7 +97,7 @@ func CommandsHandling(message *tgbotapi.Message) {
 		getTracker(message)
 		defer os.Remove("data/temp/Все записи.xlsx")
 	default:
-		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Неизвестная команда (%s)\nВоспользуйтесь /help", message.Text)))
+		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Неизвестная команда (%s)\n\nВоспользуйтесь /help", message.Text)))
 	}
 }
 

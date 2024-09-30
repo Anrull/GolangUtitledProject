@@ -86,7 +86,21 @@ func DrawTimetable(lessons [][]string, data string, teacher bool) ([]byte, error
 		lessons = newLessons
 	}
 
-	imageWidth, imageHeight := 400, (len(lessons)+1)*50
+	imageWidth, imageHeight := 500, (len(lessons)+1)*50
+
+	for _, value := range lessons {
+		value := value[0]
+		if lenn(value) > 20 && lenn(value) < 30 && imageWidth < 600 {
+			imageWidth = 600
+		} else if lenn(value) > 30 && lenn(value) < 40 && imageWidth < 700 {
+			imageWidth = 700
+		} else if lenn(value) > 40 && lenn(value) < 65 && imageWidth < 800 {
+			imageWidth = 800
+		} else if lenn(value) > 65 {
+			imageWidth = 900
+			break
+		}
+	}
 
 	// Создание изображения
 	img := image.NewRGBA(image.Rect(0, 0, imageWidth, imageHeight))
@@ -138,4 +152,12 @@ func DrawTimetable(lessons [][]string, data string, teacher bool) ([]byte, error
 	}
 
 	return buf.Bytes(), nil
+}
+
+func lenn(str string) int {
+	var count int
+	for range str {
+		count++
+	}
+	return count
 }
