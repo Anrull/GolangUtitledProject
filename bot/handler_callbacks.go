@@ -25,8 +25,12 @@ func ChoiceBotHandler(message *tgbotapi.Message, value string) {
 		}
 		_, err = db.GetTracker(message, "name")
 		if err != nil {
-			msg = tgbotapi.NewEditMessageText(message.Chat.ID, message.MessageID,
-				"Выбран бот РСОШ трекер.\nДля начала работы введите СНИЛС")
+			msg = tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID,
+				"Выбран бот РСОШ трекер.\nДля начала работы введите СНИЛС", tgbotapi.NewInlineKeyboardMarkup(
+					tgbotapi.NewInlineKeyboardRow(
+						tgbotapi.NewInlineKeyboardButtonData("Отмена", "menu;tracker;snils"),
+					),
+				))
 		} else {
 			msg = tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID,
 				message.MessageID, "Выбран бот РСОШ трекер.", BuilderMenuTracker)

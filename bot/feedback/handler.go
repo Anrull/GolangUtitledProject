@@ -14,7 +14,12 @@ func Handler(message *tgbotapi.Message, params ...string) {
 	}
 	userName := message.Chat.UserName
 	stage := params[1]
-	sub := params[2]
+	sub, err := db.GetTempFbNameByID(params[2])
+	if err != nil {
+		bot.Send(tgbotapi.NewDeleteMessage(message.Chat.ID, message.MessageID))
+		log.Println("Error in getTempFbNameByID", err)
+		return
+	}
 	date := params[3]
 	role := params[4]
 	if role == "-2" {
@@ -24,7 +29,7 @@ func Handler(message *tgbotapi.Message, params ...string) {
 	} else if role == "-1" {
 		role = "Не было учителя/урока"
 	}
-	err := db.CreateFBLessons(message.Chat.ID, userName, stage, sub, date, role)
+	err = db.CreateFBLessons(message.Chat.ID, userName, stage, sub, date, role)
 	if err != nil {
 		log.Println("Ошибка заполнения бд (feedback)", err)
 		return

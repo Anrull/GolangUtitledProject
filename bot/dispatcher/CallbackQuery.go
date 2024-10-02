@@ -137,6 +137,15 @@ func MenuCallbackQuery(query *tgbotapi.CallbackQuery, lstQ []string) {
 				tgbotapi.NewEditMessageTextAndMarkup(
 					message.Chat.ID, message.MessageID,
 					"Выберите бота", callbacks.BuilderChoiceBot))
+		case "snils":
+			_ = db.Update(message.Chat.ID, "temp", "")
+			bot.Send(
+				tgbotapi.NewEditMessageTextAndMarkup(
+					message.Chat.ID, message.MessageID,
+					"Выберите бота", callbacks.BuilderChoiceBot))
+		case "delete_me":
+			bot.Request(tgbotapi.NewDeleteMessage(message.Chat.ID, message.MessageID))
+			handler.DeleteMe(message)
 		}
 	}
 }

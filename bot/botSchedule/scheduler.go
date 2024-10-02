@@ -75,7 +75,7 @@ func SendFeedbackLessons(num int) {
 		log.Println()
 	}
 
-	week, err := timetable.GetWeek(false, true)
+	week, _ := timetable.GetWeek(false, true)
 	day := timetable.GetDayTodayFeedback()
 
 	for _, user := range users {

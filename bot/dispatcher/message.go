@@ -109,6 +109,12 @@ func MessageHandler(message *tgbotapi.Message) {
 	if res == "snils" {
 		re := regexp.MustCompile(message.Text)
 		snils := strings.Join(re.FindAllString(message.Text, -1), "")
+		snils = strings.Map(func(r rune) rune {
+			if r >= '0' && r <= '9' {
+				return r
+			}
+			return -1
+		}, snils)
 		status, name, stage := db.CheckSnils(snils)
 		if status {
 			err = db.CreateNewTrackerUser(message, name, stage)
@@ -116,10 +122,23 @@ func MessageHandler(message *tgbotapi.Message) {
 			if err != nil {
 				bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Неудалось заполнить базу данных"))
 			} else {
-				msg := tgbotapi.NewMessage(message.Chat.ID, "Готово!\nВот некоторый функционал РСОШ Трекера")
-				msg.ReplyMarkup = bot.BuilderMenuTracker
+				msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Готово!\nВот некоторый функционал РСОШ Трекера\n\n%s, %s", name, stage))
+				t := bot.CopyInlineKeyboard(bot.BuilderMenuTracker)
+				msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
+					append(t.InlineKeyboard, tgbotapi.NewInlineKeyboardRow(
+						tgbotapi.NewInlineKeyboardButtonData("Удалить аккаунт", "menu;tracker;delete_me"),
+					),)...,
+				)
 				bot.Send(msg)
 			}
+		} else {
+			msg := tgbotapi.NewMessage(message.Chat.ID, "Неверный СНИЛС")
+			msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
+				tgbotapi.NewInlineKeyboardRow(
+					tgbotapi.NewInlineKeyboardButtonData("Отмена", "menu;tracker;snils"),
+				),
+			)
+			bot.Send(msg)
 		}
 	} else {
 		msg := tgbotapi.NewMessage(message.Chat.ID, "Выберите опцию")
