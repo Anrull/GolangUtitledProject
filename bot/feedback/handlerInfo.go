@@ -157,11 +157,13 @@ func findMostCommonSubjects(subjects []db.FeedbackLesson) map[string][]string {
 		foundGroup := ""
 		for group := range groupedSubjects {
 			// Проверяем совпадение префикса с учетом minPrefixMatch
-			if len(group) >= minPrefixMatch && len(subjectLower) >= minPrefixMatch &&
-				strings.HasPrefix(subjectLower, string(group[0:minPrefixMatch])) &&
-				strings.HasSuffix(subjectLower, string(group[len(subjectLower)-minPrefixMatch])) {
+			if llen(group) > minPrefixMatch && llen(subjectLower) < minPrefixMatch && llen(subjectLower)-minPrefixMatch < llen(group) {
+				if strings.HasPrefix(subjectLower, string(group[0:minPrefixMatch])) &&
+				strings.HasSuffix(subjectLower, 
+					string(group[llen(subjectLower)-minPrefixMatch:])) {
 				foundGroup = group
 				break
+			}
 			}
 			// Если префикс не совпадает, проверяем расстояние Левенштейна
 			distance := levenshtein.ComputeDistance(subjectLower, group)
@@ -280,4 +282,12 @@ func getDates(param string) []string {
 		return getMonthDates(time.Now(), param)
 	}
 	return []string{}
+}
+
+func llen(s string) int {
+	var count int
+	for range s {
+		count++
+	}
+	return count
 }

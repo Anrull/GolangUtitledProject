@@ -7,8 +7,10 @@ import (
 	handler "awesomeProject/bot/botSchedule"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/manucorporat/try"
 
 	"log"
+	"fmt"
 )
 
 var Bot = bot.Bot
@@ -25,6 +27,10 @@ func main() {
 	updates := Bot.GetUpdatesChan(u)
 
 	for update := range updates {
-		go dispatcher.Dispatcher(&update)
+		try.This(func() {
+				go dispatcher.Dispatcher(&update)
+			}).Catch(func(e try.E) {
+				fmt.Println("Caught an error:", e)
+			})
 	}
 }
