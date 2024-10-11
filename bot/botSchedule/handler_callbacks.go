@@ -44,6 +44,7 @@ func DaysHandler(ChatID int64, week, day string) {
 
 	var schedule [][]string
 	var photoByte []byte
+	colors, err := db.GetColorByUserID(ChatID)
 	if role == "student" {
 		res, err := db.Get(ChatID, "classes")
 		if err != nil {
@@ -56,7 +57,7 @@ func DaysHandler(ChatID int64, week, day string) {
 
 		photoByte, err = timetable.DrawTimetable(schedule,
 			fmt.Sprintf("%s, нед: %s, день: %s", res, weeks[week],
-				days[day]), false)
+				days[day]), false, colors...)
 	} else {
 		name, err := db.Get(ChatID, "name_teacher")
 		if err != nil {
@@ -69,7 +70,7 @@ func DaysHandler(ChatID int64, week, day string) {
 
 		photoByte, _ = timetable.DrawTimetable(schedule,
 			fmt.Sprintf("%s, нед: %s, день: %s",
-				name, weeks[week], days[day]), true)
+				name, weeks[week], days[day]), true, colors...)
 	}
 
 	SendPhotoByte(ChatID, photoByte)

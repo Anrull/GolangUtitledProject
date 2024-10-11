@@ -4,6 +4,29 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
+var ProfilePanel = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("🔴 Настроить цвет расписания 🟢", "profile;choice-color;main"),
+	),
+)
+
+var ProfileColorsPanel = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("🟢", "profile;choice-color;green"),
+		tgbotapi.NewInlineKeyboardButtonData("🔵", "profile;choice-color;blue"),
+		tgbotapi.NewInlineKeyboardButtonData("⚪️", "profile;choice-color;white"),
+		tgbotapi.NewInlineKeyboardButtonData("🟡", "profile;choice-color;yellow"),
+		tgbotapi.NewInlineKeyboardButtonData("🟣", "profile;choice-color;purple"),
+	),
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Назад", "profile;escape")),
+)
+
+var ProfilePanelEscape = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Назад", "profile;escape")),
+)
+
 var AdminPanel = tgbotapi.NewInlineKeyboardMarkup(
 	tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData("Database", "admin;get_db"),

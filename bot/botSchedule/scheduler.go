@@ -42,6 +42,8 @@ func TasksSchedule() {
 		week, _ := timetable.GetWeek(false, true)
 		day := timetable.GetDayTomorrow()
 
+		colors, _ := db.GetColorByUserID(user.UserID)
+
 		if role == "student" {
 			stage, _ := db.Get(user.UserID, "classes")
 			lessons, _ := timetable.GetTimetableText(week, day, stage)
@@ -49,7 +51,7 @@ func TasksSchedule() {
 			photoByte, _ = timetable.DrawTimetable(
 				lessons, fmt.Sprintf("%s, нед: %s, день: %s",
 					stage, lexicon.Week[week], lexicon.Day[day]),
-				false)
+				false, colors...)
 		} else {
 			teacher, _ := db.Get(user.UserID, "name_teacher")
 			lessons, _ := timetable.GetTimetableTeachersText(teacher, week, day)
@@ -57,7 +59,7 @@ func TasksSchedule() {
 			photoByte, _ = timetable.DrawTimetable(
 				lessons, fmt.Sprintf("%s, нед: %s, день: %s", teacher,
 					lexicon.Week[week], lexicon.Day[day]),
-				true)
+				true, colors...)
 		}
 
 		SendPhotoByte(user.UserID, photoByte)

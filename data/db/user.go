@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"gorm.io/driver/sqlite"
@@ -29,6 +30,7 @@ type User struct {
 	Bot         string `gorm:"column:bot;default=''"`
 	LastIDs     string `gorm:"column:last_ids;default=''"`
 	Admin       string `gorm:"column:admin;default='0'"`
+	Color       string `gorm:"column:color;default=''"`
 }
 
 func init() {
@@ -61,6 +63,7 @@ func NewUser(message tgbotapi.Message) error {
 				Bot:        "bot-schedule",
 				Newsletter: "1",
 				Admin:      "SuperAdmin",
+				Color:      "131, 236, 156|||255, 255, 255",
 			}
 		} else {
 			newUser = User{
@@ -69,6 +72,7 @@ func NewUser(message tgbotapi.Message) error {
 				Username:   username,
 				Bot:        "bot-schedule",
 				Newsletter: "1",
+				Color:      "131, 236, 156|||255, 255, 255",
 			}
 		}
 
@@ -174,6 +178,8 @@ func Update(ChatID int64, column, value string) error {
 		user.Temp = value
 	case "admin":
 		user.Admin = value
+	case "color":
+		user.Color = value
 	}
 
 	return DB.Save(&user).Error
@@ -204,4 +210,63 @@ func AddAdmin(value, column string) error {
 		return err
 	}
 	return Update(int64(userID), "admin", "admin")
+}
+
+func GetIdByUsername(username string) (int64, error) {
+	var user User
+	result := DB.First(&user, "username = ?", username)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	return user.UserID, nil
+}
+
+func GetColorByUserID(userID int64) ([][]uint8, error) {
+	var user User
+	result := DB.First(&user, "user_id = ?", userID)
+	if result.Error != nil {
+		return [][]uint8{}, result.Error
+	}
+	colors := strings.Split(user.Color, "|||")
+	if len(colors) == 2 {
+		colors1 := strings.Split(colors[0], ", ")
+		colors2 := strings.Split(colors[1], ", ")
+		if len(colors1) == 3 && len(colors2) == 3 {
+			color1_1, err := strconv.Atoi(colors1[0])
+			if err != nil {
+				return [][]uint8{}, err
+			}
+			color1_2, err := strconv.Atoi(colors1[1])
+			if err != nil {
+				return [][]uint8{}, err
+			}
+			color1_3, err := strconv.Atoi(colors1[2])
+			if err != nil {
+				return [][]uint8{}, err
+			}
+			color2_1, err := strconv.Atoi(colors2[0])
+			if err != nil {
+				return [][]uint8{}, err
+			}
+			color2_2, err := strconv.Atoi(colors2[1])
+			if err != nil {
+				return [][]uint8{}, err
+			}
+			color2_3, err := strconv.Atoi(colors2[2])
+			if err != nil {
+				return [][]uint8{}, err
+			}
+
+			return [][]uint8{{uint8(color1_1), uint8(color1_2), uint8(color1_3)}, {uint8(color2_1), uint8(color2_2), uint8(color2_3)}}, nil
+		}
+		return [][]uint8{}, fmt.Errorf("invalid color format: %s", user.Color)
+	}
+	return [][]uint8{}, fmt.Errorf("invalid color format: %s", user.Color)
+}
+
+func Upgrade() {
+	result := DB.Model(&User{}).Where("color IS NULL OR color = ?", "").Update("color", "131, 236, 156|||255, 255, 255")
+	if result.Error != nil {
+		log.Println(result.Error)
+	}
 }

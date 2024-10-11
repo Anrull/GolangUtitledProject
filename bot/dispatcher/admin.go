@@ -3,11 +3,13 @@ package dispatcher
 import (
 	"awesomeProject/bot"
 	"awesomeProject/bot/feedback"
+	"awesomeProject/bot/lexicon"
 	"awesomeProject/data/db"
 	"database/sql"
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
@@ -92,6 +94,21 @@ func AddAdmin(message *tgbotapi.Message) {
 		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Не удалось добавить администратора (%s)", err.Error())))
 		log.Println(err)
 		return
+	}
+	if role == "id" {
+		id, err := strconv.Atoi(value)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		bot.Send(tgbotapi.NewMessage(int64(id), lexicon.StartAdmin))
+	} else if role == "nick" {
+		id, err := db.GetIdByUsername(value)
+		if err != nil {
+			log.Println(err)
+			return
+		}
+		bot.Send(tgbotapi.NewMessage(int64(id), lexicon.StartAdmin))
 	}
 	bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Администратор %s добавлен", value)))
 }

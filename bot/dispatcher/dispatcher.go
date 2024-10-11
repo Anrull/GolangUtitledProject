@@ -59,6 +59,8 @@ func Dispatcher(update *tgbotapi.Update) {
 			AdminPanelHandler(query, lstQ[1], lstQ...)
 		} else if lstQ[0] == "lesson" {
 			feedback.Handler(query.Message, lstQ...)
+		} else if lstQ[0] == "profile" {
+			HandlerProfileCallbacks(query)
 		}
 
 		bot.Request(tgbotapi.NewCallback(update.CallbackQuery.ID, ""))

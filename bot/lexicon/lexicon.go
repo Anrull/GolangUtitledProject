@@ -13,22 +13,26 @@ var (
 )
 
 var (
-    HelpMessage string
+    HelpMessage        string
     InformationCaption string
-    TimetableTime string
+    TimetableTime      string
+	StartAdmin         string
 )
 
-var ListDays []string
-var Stages []string
-
-var Week map[string]string
-var DayTextToInt map[string]string
-var Day map[string]string
+var ListDays          []string
+var Stages            []string
 
 var SubjectsForButton []string
-var StagesTracker []string
-var TeacherTracker []string
-var TrackerOlimps []string
+var StagesTracker     []string
+var TeacherTracker    []string
+var TrackerOlimps     []string
+
+var Week              map[string]string
+var DayTextToInt      map[string]string
+var Day               map[string]string
+
+var ColorsToRgbConfig map[string]string
+var RgbToColorsConfig map[string]string
 
 func init() {
 	data, err := os.ReadFile("data/lexicon.json")
@@ -37,18 +41,21 @@ func init() {
 	}
 
 	var values struct {
-		HelpMessage          string `json:"help_message"`
-		InformationCaption   string `json:"information_caption"`
-		TimetableTime        string    `json:"schedule_time"`
-		SubjectsForButton    []string  `json:"subjects"`
-		ListDays             []string `json:"list_days"`
-		Stages               []string `json:"classes"`
+		HelpMessage          string            `json:"help_message"`
+		InformationCaption   string            `json:"information_caption"`
+		TimetableTime        string            `json:"schedule_time"`
+		SubjectsForButton    []string          `json:"subjects"`
+		ListDays             []string          `json:"list_days"`
+		Stages               []string          `json:"classes"`
 		Week                 map[string]string `json:"week"`
 		DayTextToInt         map[string]string `json:"days_to_int"`
 		Days                 map[string]string `json:"int_to_days"`
-		StagesTracker        []string `json:"stages_tracker"`
-		TeacherTracker       []string `json:"teachers_tracker"`
-		TrackerOlimps        []string `json:"tracker_olimps"`
+		StagesTracker        []string          `json:"stages_tracker"`
+		TeacherTracker       []string          `json:"teachers_tracker"`
+		TrackerOlimps        []string          `json:"tracker_olimps"`
+		StartAdminMessage    string            `json:"start_admin"`
+		ColorsToRgbConfig    map[string]string `json:"colors_to_RGB_config"`
+		RgbToColorsConfig    map[string]string `json:"RGB_to_colors_config"`
 	}
 
 	if err := json.Unmarshal(data, &values); err != nil {
@@ -67,4 +74,7 @@ func init() {
 	StagesTracker = values.StagesTracker
 	TeacherTracker = values.TeacherTracker
 	TrackerOlimps = values.TrackerOlimps
+	StartAdmin = values.StartAdminMessage
+	ColorsToRgbConfig = values.ColorsToRgbConfig
+	RgbToColorsConfig = values.RgbToColorsConfig
 }

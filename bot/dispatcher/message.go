@@ -127,7 +127,7 @@ func MessageHandler(message *tgbotapi.Message) {
 				msg.ReplyMarkup = tgbotapi.NewInlineKeyboardMarkup(
 					append(t.InlineKeyboard, tgbotapi.NewInlineKeyboardRow(
 						tgbotapi.NewInlineKeyboardButtonData("Удалить аккаунт", "menu;tracker;delete_me"),
-					),)...,
+					))...,
 				)
 				bot.Send(msg)
 			}
@@ -160,6 +160,7 @@ func MessageHandler(message *tgbotapi.Message) {
 }
 
 func isValid(message *tgbotapi.Message, slice []string, num int) bool {
+	colors, _ := db.GetColorByUserID(message.Chat.ID)
 	if num == 3 {
 		if in(lexicon.Stages, slice[0]) {
 			if in([]string{"н", "ч"}, slice[1]) {
@@ -176,7 +177,7 @@ func isValid(message *tgbotapi.Message, slice []string, num int) bool {
 						return false
 					}
 					image, err := timetable.DrawTimetable(lessons,
-						fmt.Sprintf("%s, нед: %s, день: %s", slice[0], slice[1], slice[2]), false)
+						fmt.Sprintf("%s, нед: %s, день: %s", slice[0], slice[1], slice[2]), false, colors...)
 					if err != nil {
 						log.Println(err)
 						return false
@@ -208,7 +209,7 @@ func isValid(message *tgbotapi.Message, slice []string, num int) bool {
 				}
 				image, err := timetable.DrawTimetable(lessons,
 					fmt.Sprintf("%s, нед: %s, день: %s",
-						slice[0], lexicon.Week[week], lexicon.Day[day]), false)
+						slice[0], lexicon.Week[week], lexicon.Day[day]), false, colors...)
 				if err != nil {
 					log.Println(err)
 					return false
@@ -228,14 +229,14 @@ func in(slice []string, value string) bool {
 
 func isAdmin(message *tgbotapi.Message) bool {
 	ids, err := db.GetAdminIds()
-		if err != nil {
-			return false
-		}
-
-		if slices.Contains(ids, message.Chat.ID) {
-			return true
-		}
+	if err != nil {
 		return false
+	}
+
+	if slices.Contains(ids, message.Chat.ID) {
+		return true
+	}
+	return false
 }
 
 func getTracker(message *tgbotapi.Message, filenames ...string) {

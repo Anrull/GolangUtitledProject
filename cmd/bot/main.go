@@ -28,9 +28,9 @@ func main() {
 
 	for update := range updates {
 		try.This(func() {
-				go dispatcher.Dispatcher(&update)
-			}).Catch(func(e try.E) {
-				fmt.Println("Caught an error:", e)
-			})
+			go dispatcher.Dispatcher(&update)
+		}).Catch(func(e try.E) {
+			fmt.Println("Caught an error:", e)
+		})
 	}
 }

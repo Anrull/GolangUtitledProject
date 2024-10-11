@@ -68,7 +68,18 @@ func addLabel(img *image.RGBA, x, y int, fontFace font.Face, label string, color
 // Returns:
 // - []byte: the encoded image in PNG format.
 // - error: an error if encoding the image fails.
-func DrawTimetable(lessons [][]string, data string, teacher bool) ([]byte, error) {
+func DrawTimetable(lessons [][]string, data string, teacher bool, colors ...[]uint8) ([]byte, error) {
+	color1 := color.RGBA{131, 236, 156, 255}
+	color2 := color.RGBA{255, 255, 255, 255}
+	if len(colors) == 2 {
+		if len(colors[0]) == 3 {
+			color1 = color.RGBA{colors[0][0], colors[0][1], colors[0][2], 255}
+		}
+		if len(colors[1]) == 3 {
+			color2 = color.RGBA{colors[1][0], colors[1][1], colors[1][2], 255}
+		}
+	}
+	
 	var newLessons [][]string
 	count := 0
 	if teacher {
@@ -119,13 +130,13 @@ func DrawTimetable(lessons [][]string, data string, teacher bool) ([]byte, error
 	for i, lesson := range lessons {
 		var color_ color.RGBA
 		if count < 2 {
-			color_ = color.RGBA{131, 236, 156, 255}
+			color_ = color1
 			count++
 		} else if count < 4 {
-			color_ = color.RGBA{255, 255, 255, 255}
+			color_ = color2
 			count++
 		} else {
-			color_ = color.RGBA{131, 236, 156, 255}
+			color_ = color1
 			count = 1
 		}
 		for x := 0; x < imageWidth; x++ {

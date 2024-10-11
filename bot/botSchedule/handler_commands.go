@@ -91,6 +91,9 @@ func Schedule(message *tgbotapi.Message, today bool) {
 			day = timetable.GetDayTomorrow()
 		}
 
+		colors, err := db.GetColorByUserID(message.Chat.ID)
+		logging(message, err)
+
 		if role == "student" {
 			stage, err := db.Get(message.Chat.ID, "classes")
 			logging(message, err)
@@ -101,7 +104,7 @@ func Schedule(message *tgbotapi.Message, today bool) {
 			photoByte, _ = timetable.DrawTimetable(
 				lessons, fmt.Sprintf("%s, нед: %s, день: %s",
 					stage, lexicon.Week[week], lexicon.Day[day]),
-				false)
+				false, colors...)
 		} else {
 			teacher, err := db.Get(message.Chat.ID, "name_teacher")
 			logging(message, err)
@@ -111,7 +114,7 @@ func Schedule(message *tgbotapi.Message, today bool) {
 
 			photoByte, _ = timetable.DrawTimetable(
 				lessons, fmt.Sprintf("%s, нед: %s, день: %s", teacher, lexicon.Week[week], lexicon.Day[day]),
-				true)
+				true, colors...)
 		}
 
 		SendPhotoByte(message.Chat.ID, photoByte)
