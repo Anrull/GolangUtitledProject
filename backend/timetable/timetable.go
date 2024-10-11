@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"time"
 )
 
@@ -64,6 +65,8 @@ func init() {
 	for i := range scheduleTeacher["0"] {
 		Teachers = append(Teachers, i)
 	}
+
+	sort.Strings(Teachers)
 }
 
 // GetTimetableText retrieves the timetable for a given week, day, and text class.

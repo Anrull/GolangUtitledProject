@@ -105,6 +105,10 @@ func buttons(data, subData string, slice []string, step, minParam int) (tgbotapi
 		slice33 = append(slice33, tgbotapi.NewInlineKeyboardButtonData(
 			slice[i], fmt.Sprintf("tracker;someget;%s;%d%s", data, i, subData)))
 	}
+	slice0 = append(slice0, slice00)
+	slice1 = append(slice1, slice11)
+	slice2 = append(slice2, slice22)
+	slice3 = append(slice3, slice33)
 	builder1 := tgbotapi.NewInlineKeyboardMarkup(slice0...)
 	builder2 := tgbotapi.NewInlineKeyboardMarkup(slice1...)
 	builder3 := tgbotapi.NewInlineKeyboardMarkup(slice2...)

@@ -96,6 +96,51 @@ func CommandsHandling(message *tgbotapi.Message) {
 	case "get_tracker":
 		getTracker(message)
 		defer os.Remove("data/temp/Все записи.xlsx")
+	case "add_student":
+		defaultTextMessage := "Образец:\n/add_student\nФамилия Имя Отчество\n10А\n12345678910"
+		if isAdmin(message) {
+			lstQ := strings.Split(message.Text, "\n")
+			if len(lstQ) == 4 {
+				if len(strings.Split(lstQ[1], " ")) == 3 {
+					re := regexp.MustCompile(lstQ[3])
+					snils := strings.Join(re.FindAllString(lstQ[3], -1), "")
+					snils = strings.Map(func(r rune) rune {
+						if r >= '0' && r <= '9' {
+							return r
+						}
+						return -1
+					}, snils)
+					if func() int {var count int
+						for range snils {
+							count++
+						}
+						return count }() != 11 {
+						bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Неверный формат СНИЛС"))
+						return
+					}
+					stages := lexicon.ExampleStages
+					if stages[lstQ[2]] != "" {
+						lstQ[2] = stages[lstQ[2]]
+					} else {
+						bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("%s (%s)\n\n%s", "Неверный формат класса", lstQ[2], defaultTextMessage)))
+						return
+					}
+					err := db.AddStudent(lstQ[1], snils, lstQ[2])
+					if err != nil {
+						bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("%s\n\n%s", err.Error(), defaultTextMessage)))
+						return
+					}
+					bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Студент добавлен"))
+				} else {
+					bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("%s\n\n%s", "Неверный формат ФИО", defaultTextMessage)))
+				}
+			} else {
+				bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("%s\n\n%s", "Неверный формат запроса", defaultTextMessage)))
+			}
+		} else {
+			bot.Send(tgbotapi.NewMessage(message.Chat.ID, "У вас нет прав администратора"))
+			return
+		}
 	default:
 		bot.Send(tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Неизвестная команда (%s)\n\nВоспользуйтесь /help", message.Text)))
 	}

@@ -236,7 +236,7 @@ func TeachersCallbacksHandler(message *tgbotapi.Message, method, index string) {
 			return
 		}
 		slice := strings.Split(textSlice, ";")
-		text := fmt.Sprintf("Подтвердите правильность введенных вами данных:\n%s\n%s\n%s\n%s", slice[0], slice[1], slice[2], slice[3])
+		text := fmt.Sprintf("Подтвердите правильность введенных вами данных:\n• %s\n• %s\n• %s\n• %s", slice[0], slice[1], slice[2], slice[3])
 		msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, text, callbacks.BuilderYNAddRecord)
 		bot.Send(msg)
 		return

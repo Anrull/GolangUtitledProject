@@ -34,6 +34,8 @@ var Day               map[string]string
 var ColorsToRgbConfig map[string]string
 var RgbToColorsConfig map[string]string
 
+var ExampleStages     map[string]string
+
 func init() {
 	data, err := os.ReadFile("data/lexicon.json")
 	if err != nil {
@@ -56,6 +58,7 @@ func init() {
 		StartAdminMessage    string            `json:"start_admin"`
 		ColorsToRgbConfig    map[string]string `json:"colors_to_RGB_config"`
 		RgbToColorsConfig    map[string]string `json:"RGB_to_colors_config"`
+		ExampleStages        map[string]string `json:"example_stages"`
 	}
 
 	if err := json.Unmarshal(data, &values); err != nil {
@@ -77,4 +80,5 @@ func init() {
 	StartAdmin = values.StartAdminMessage
 	ColorsToRgbConfig = values.ColorsToRgbConfig
 	RgbToColorsConfig = values.RgbToColorsConfig
+	ExampleStages = values.ExampleStages
 }
