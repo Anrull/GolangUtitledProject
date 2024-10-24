@@ -91,6 +91,7 @@ func GetTracker(message *tgbotapi.Message, column string) (string, error) {
 	if result.Error != nil {
 		return "", result.Error
 	}
+	
 	var res string
 	switch column {
 	case "delete_olimps":

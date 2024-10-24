@@ -38,7 +38,7 @@ func AddRecord(name, class, olimp, sub, teacher, stage string, date ...string) e
 		return nil
 	}
 
-	newUser := Records{
+	newRecord := Records{
 		Date:     time.Now().Format("2006-01-02"),
 		Name:     name,
 		Class:    class,
@@ -49,10 +49,10 @@ func AddRecord(name, class, olimp, sub, teacher, stage string, date ...string) e
 	}
 
 	if len(date) > 0 {
-		newUser.Date = date[0]
+		newRecord.Date = date[0]
 	}
 
-	return RecordsDB.Create(&newUser).Error
+	return RecordsDB.Create(&newRecord).Error
 }
 
 func GetRecords(name, sub, olimp, stage, teacher string) (*[]Records, error) {

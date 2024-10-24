@@ -101,10 +101,23 @@ func Schedule(message *tgbotapi.Message, today bool) {
 			lessons, err := timetable.GetTimetableText(week, day, stage)
 			logging(message, err)
 
+			extraLessons, err := timetable.GetExtraTimetableText(week, day, stage)
+			logging(message, err)
+
+			lessons = timetable.Merge(lessons, extraLessons)
+
 			photoByte, _ = timetable.DrawTimetable(
 				lessons, fmt.Sprintf("%s, нед: %s, день: %s",
 					stage, lexicon.Week[week], lexicon.Day[day]),
 				false, colors...)
+
+			// if !reflect.DeepEqual(extraLessons, [][]string{{}, {}, {}}) {
+			// 	extraPhotoByte, _ := timetable.DrawTimetable(
+			// 		extraLessons, "Внеурочные занятия",
+			// 		false, colors...)
+				
+			// 	defer SendPhotoByte(message.Chat.ID, extraPhotoByte)
+			// }
 		} else {
 			teacher, err := db.Get(message.Chat.ID, "name_teacher")
 			logging(message, err)

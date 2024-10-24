@@ -22,7 +22,6 @@ func AddRecord(message *tgbotapi.Message, q bool) {
 	msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID,
 		message.MessageID, "Выберите предмет", callbacks.BuilderSubjectsForTracker)
 	bot.Send(msg)
-
 }
 
 func HandlerDeleteOlimpsMessage(message *tgbotapi.Message) {

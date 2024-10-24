@@ -46,3 +46,12 @@ func AddStudent(name, snils, stage string) error {
 	}
 	return fmt.Errorf("student with snils %s already exists", snils)
 }
+
+func GetSnils(name, stage string) (string, error) {
+	var student Students
+	result := FamilyDB.First(&student, "name = ? AND stage = ?", name, stage)
+	if result.Error != nil {
+		return "", result.Error
+	}
+	return student.Snils, nil
+}

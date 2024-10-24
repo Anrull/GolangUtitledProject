@@ -45,19 +45,45 @@ func DaysHandler(ChatID int64, week, day string) {
 	var schedule [][]string
 	var photoByte []byte
 	colors, err := db.GetColorByUserID(ChatID)
+
+	if err != nil {
+		log.Println(err)
+		bot.Send(tgbotapi.NewMessage(ChatID, "Произошла ошибка свзяи с db"))
+		return
+	}
 	if role == "student" {
 		res, err := db.Get(ChatID, "classes")
 		if err != nil {
 			log.Println(err)
-			bot.Send(tgbotapi.NewMessage(ChatID, "Произошла ошибка свзяи с db"))
+			bot.Send(tgbotapi.NewMessage(ChatID, "Произошла ошибка связи с db"))
 			return
 		}
 
 		schedule, err = timetable.GetTimetableText(week, day, res)
+		if err != nil {
+			log.Println(err)
+			bot.Send(tgbotapi.NewMessage(ChatID, "Произошла ошибка парсинга расписания"))
+			return
+		}
+
+		extraLessons, err := timetable.GetExtraTimetableText(week, day, res)
+		if err != nil {
+			log.Println(err)
+			bot.Send(tgbotapi.NewMessage(ChatID, "Произошла ошибка парсинга внеурочек"))
+			return
+		}
+
+		schedule = timetable.Merge(schedule, extraLessons)
 
 		photoByte, err = timetable.DrawTimetable(schedule,
 			fmt.Sprintf("%s, нед: %s, день: %s", res, weeks[week],
 				days[day]), false, colors...)
+
+		if err != nil {
+			log.Println(err)
+			bot.Send(tgbotapi.NewMessage(ChatID, "Произошла ошибка отрисовки расписания"))
+			return
+		}
 	} else {
 		name, err := db.Get(ChatID, "name_teacher")
 		if err != nil {
@@ -67,6 +93,11 @@ func DaysHandler(ChatID int64, week, day string) {
 		}
 
 		schedule, err = timetable.GetTimetableTeachersText(name, week, day)
+		if err != nil {
+			log.Println(err)
+			bot.Send(tgbotapi.NewMessage(ChatID, "Произошла ошибка отрисовки расписания"))
+			return
+		}
 
 		photoByte, _ = timetable.DrawTimetable(schedule,
 			fmt.Sprintf("%s, нед: %s, день: %s",

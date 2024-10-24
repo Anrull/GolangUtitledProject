@@ -70,3 +70,10 @@ func SendFile(ChatID int64, filename, title, Caption string, flag ...bool) {
 
 	Send(msg)
 }
+
+func Logging(message *tgbotapi.Message, err error) {
+	if err != nil {
+		log.Println(err)
+		Bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Ошибка связи с db"))
+	}
+}

@@ -79,6 +79,10 @@ func DrawTimetable(lessons [][]string, data string, teacher bool, colors ...[]ui
 			color2 = color.RGBA{colors[1][0], colors[1][1], colors[1][2], 255}
 		}
 	}
+
+	if data == "Внеурочные занятия" {
+		color2 = color1
+	}
 	
 	var newLessons [][]string
 	count := 0

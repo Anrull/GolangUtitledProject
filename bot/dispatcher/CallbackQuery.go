@@ -125,6 +125,29 @@ func MenuCallbackQuery(query *tgbotapi.CallbackQuery, lstQ []string) {
 		}
 	} else if lstQ[1] == "tracker" {
 		switch lstQ[2] {
+		case "add_online":
+			name, err := db.GetTracker(message, "name")
+			if err != nil {
+				bot.Logging(message, err)
+				return
+			}
+			stage, err := db.GetTracker(message, "stage")
+			if err != nil {
+				bot.Logging(message, err)
+				return
+			}
+
+			snils, err := db.GetSnils(name, stage)
+			if err != nil {
+				bot.Logging(message, err)
+				return
+			}
+			text := fmt.Sprintf(
+				"Имя: %s\nКласс: %s\n\n<a href=\"%s/?fullname=%s\">Ссылка для заполнения</a>", 
+				name, stage, lexicon.Link, snils)
+			msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, text, bot.BuilderEscape)
+			msg.ParseMode = tgbotapi.ModeHTML
+			bot.Send(msg)
 		case "Добавить запись":
 			trackerHandler.AddRecord(message, true)
 		case "Просмотр записей":

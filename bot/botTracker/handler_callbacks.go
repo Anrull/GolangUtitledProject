@@ -64,7 +64,7 @@ func SubjectsCallbacksHandler(message *tgbotapi.Message, method, index string) {
 		sub := lexicon.SubjectsForButton[i]
 		name, err := db.GetTracker(message, "name")
 		err = db.AddTracker(message, "get_olimps",
-			fmt.Sprintf("sub||%s;;olimp||nil;;stage||nil;;teacher||%s", sub))
+			fmt.Sprintf("sub||%s;;olimp||nil;;stage||nil;;teacher||nil", sub))
 		if err != nil {
 			logging(message, err)
 			return

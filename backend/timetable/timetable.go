@@ -9,6 +9,7 @@ import (
 )
 
 var table map[string]map[string]map[string][][]string
+var extraTable map[string]map[string]map[string][][]string
 var scheduleTeacher map[string]map[string]map[string][][]interface{}
 var weeks map[string]string
 var crutches = map[float64]string{1.0: "1", 2.0: "2", 3.0: "3", 4.0: "4", 5.0: "5", 6.0: "6", 7.0: "7", 8.0: "8"}
@@ -62,6 +63,15 @@ func init() {
 		fmt.Println("Ошибка парсинга JSON (недели):", err)
 	}
 
+	dataExtraTable, err := os.ReadFile("data/extra_lessons.json")
+	if err != nil {
+		fmt.Println("Ошибка чтения файла (доп. таблица):", err)
+	}
+	err = json.Unmarshal(dataExtraTable, &extraTable)
+	if err != nil {
+		fmt.Println("Ошибка парсинга JSON (доп. таблица):", err)
+	}
+
 	for i := range scheduleTeacher["0"] {
 		Teachers = append(Teachers, i)
 	}
@@ -91,6 +101,21 @@ func GetTimetableText(week, day, textClass string) ([][]string, error) {
 	}
 
 	return table[week][textClass][day], nil
+}
+
+
+func GetExtraTimetableText(week, day, textClass string) ([][]string, error) {
+	if _, ok := extraTable[week]; !ok {
+		return nil, fmt.Errorf("неверная неделя: %s", week)
+	}
+	if _, ok := extraTable[week][textClass]; !ok {
+		return nil, fmt.Errorf("неверный text_class: %s", textClass)
+	}
+	if _, ok := extraTable[week][textClass][day]; !ok {
+		return nil, fmt.Errorf("неверный день: %s", day)
+	}
+
+	return extraTable[week][textClass][day], nil
 }
 
 // GetTimetableTeachersText retrieves the timetable for a given week, day, and teacher name.

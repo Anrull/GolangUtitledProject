@@ -7,6 +7,7 @@ import (
 	"awesomeProject/bot/lexicon"
 	"awesomeProject/data/db"
 	"log"
+	"reflect"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -52,6 +53,16 @@ func TasksSchedule() {
 				lessons, fmt.Sprintf("%s, нед: %s, день: %s",
 					stage, lexicon.Week[week], lexicon.Day[day]),
 				false, colors...)
+			
+			extraLessons, _ := timetable.GetExtraTimetableText(week, day, stage)
+
+			if !reflect.DeepEqual(extraLessons, [][]string{{}, {}, {}}) {
+				extraPhotoByte, _ := timetable.DrawTimetable(
+					extraLessons, "Внеурочные занятия",
+					false, colors...)
+				
+				defer SendPhotoByte(user.UserID, extraPhotoByte)
+			}
 		} else {
 			teacher, _ := db.Get(user.UserID, "name_teacher")
 			lessons, _ := timetable.GetTimetableTeachersText(teacher, week, day)

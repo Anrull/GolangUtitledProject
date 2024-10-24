@@ -17,6 +17,7 @@ var (
     InformationCaption string
     TimetableTime      string
 	StartAdmin         string
+	Link               string
 )
 
 var ListDays          []string
@@ -59,6 +60,7 @@ func init() {
 		ColorsToRgbConfig    map[string]string `json:"colors_to_RGB_config"`
 		RgbToColorsConfig    map[string]string `json:"RGB_to_colors_config"`
 		ExampleStages        map[string]string `json:"example_stages"`
+		Link                 string            `json:"link"`
 	}
 
 	if err := json.Unmarshal(data, &values); err != nil {
@@ -81,4 +83,5 @@ func init() {
 	ColorsToRgbConfig = values.ColorsToRgbConfig
 	RgbToColorsConfig = values.RgbToColorsConfig
 	ExampleStages = values.ExampleStages
+	Link = values.Link
 }

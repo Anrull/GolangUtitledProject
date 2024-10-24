@@ -221,6 +221,17 @@ func isValid(message *tgbotapi.Message, slice []string, num int) bool {
 						log.Println(err)
 						return false
 					}
+
+					extraLessons, err := timetable.GetExtraTimetableText(slice[1],
+						lexicon.DayTextToInt[slice[2]], slice[0])
+					
+					if err != nil {
+						log.Println(err)
+						return false
+					}
+
+					lessons = timetable.Merge(lessons, extraLessons)
+
 					image, err := timetable.DrawTimetable(lessons,
 						fmt.Sprintf("%s, нед: %s, день: %s", slice[0], slice[1], slice[2]), false, colors...)
 					if err != nil {
@@ -252,6 +263,16 @@ func isValid(message *tgbotapi.Message, slice []string, num int) bool {
 					log.Println(err)
 					return false
 				}
+
+				extraLessons, err := timetable.GetExtraTimetableText(week, day, slice[0])
+				
+				if err != nil {
+					log.Println(err)
+					return false
+				}
+
+				lessons = timetable.Merge(lessons, extraLessons)
+
 				image, err := timetable.DrawTimetable(lessons,
 					fmt.Sprintf("%s, нед: %s, день: %s",
 						slice[0], lexicon.Week[week], lexicon.Day[day]), false, colors...)
@@ -325,5 +346,7 @@ func getTracker(message *tgbotapi.Message, filenames ...string) {
 		}
 
 		bot.SendFile(message.Chat.ID, filename, "Все записи.xlsx", "time")
+	} else {
+		bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Недостаточно прав доступа"))
 	}
 }
