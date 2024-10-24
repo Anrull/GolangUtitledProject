@@ -5,9 +5,9 @@ import (
 	"awesomeProject/bot"
 	"awesomeProject/bot/feedback"
 	"awesomeProject/bot/lexicon"
+	"awesomeProject/bot/logger"
 	"awesomeProject/data/db"
 	"log"
-	"reflect"
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -31,6 +31,8 @@ func RunScheduler() {
 		scheduler.NewScheduler(i, 8, 40, LessonThree)
 		scheduler.NewScheduler(i, 9, 40, LessonSeven)
 	}
+
+	logger.Info("Scheduler started")
 }
 
 func TasksSchedule() {
@@ -48,21 +50,23 @@ func TasksSchedule() {
 		if role == "student" {
 			stage, _ := db.Get(user.UserID, "classes")
 			lessons, _ := timetable.GetTimetableText(week, day, stage)
+			
+			extraLessons, _ := timetable.GetExtraTimetableText(week, day, stage)
+
+			lessons = timetable.Merge(lessons, extraLessons)
+
+			// if !reflect.DeepEqual(extraLessons, [][]string{{}, {}, {}}) {
+			// 	extraPhotoByte, _ := timetable.DrawTimetable(
+			// 		extraLessons, "Внеурочные занятия",
+			// 		false, colors...)
+				
+			// 	defer SendPhotoByte(user.UserID, extraPhotoByte)
+			// }
 
 			photoByte, _ = timetable.DrawTimetable(
 				lessons, fmt.Sprintf("%s, нед: %s, день: %s",
 					stage, lexicon.Week[week], lexicon.Day[day]),
 				false, colors...)
-			
-			extraLessons, _ := timetable.GetExtraTimetableText(week, day, stage)
-
-			if !reflect.DeepEqual(extraLessons, [][]string{{}, {}, {}}) {
-				extraPhotoByte, _ := timetable.DrawTimetable(
-					extraLessons, "Внеурочные занятия",
-					false, colors...)
-				
-				defer SendPhotoByte(user.UserID, extraPhotoByte)
-			}
 		} else {
 			teacher, _ := db.Get(user.UserID, "name_teacher")
 			lessons, _ := timetable.GetTimetableTeachersText(teacher, week, day)

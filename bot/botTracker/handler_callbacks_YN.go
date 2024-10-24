@@ -19,12 +19,12 @@ func YNAddRecordHandler(message *tgbotapi.Message, role string) {
 		}
 		slice := strings.Split(textSlice, ";")
 		name, err := db.GetTracker(message, "name")
-		logging(message, err)
+		bot.Logging(message, err)
 		class, err := db.GetTracker(message, "stage")
-		logging(message, err)
+		bot.Logging(message, err)
 		err = db.AddRecord(name, class, slice[1], slice[0], slice[3], slice[2])
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		msg = tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID,

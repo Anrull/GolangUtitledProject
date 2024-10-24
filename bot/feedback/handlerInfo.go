@@ -3,9 +3,9 @@ package feedback
 import (
 	"awesomeProject/bot"
 	"awesomeProject/bot/lexicon"
+	"awesomeProject/bot/logger"
 	"awesomeProject/data/db"
 	"fmt"
-	"log"
 	"math"
 	"os"
 	"strings"
@@ -39,7 +39,7 @@ func HandlerInfo(message *tgbotapi.Message, params ...string) {
     
     err = f.MergeCell("Sheet1", "A1", "H4")
     if err != nil {
-        log.Println(err)
+        logger.Error("", err)
         return
     }
     
@@ -49,7 +49,7 @@ func HandlerInfo(message *tgbotapi.Message, params ...string) {
 		records, err = db.GetFBLessonsByWeekTest(i, getDates(params[0]))
 
 		if err != nil {
-			log.Println(err)
+			logger.Error("", err)
 			return
 		}
 
@@ -135,7 +135,7 @@ func HandlerInfo(message *tgbotapi.Message, params ...string) {
     defer os.Remove(filename)
 
     if err := f.SaveAs(filename); err != nil {
-        log.Println(err)
+        logger.Error("", err)
         return
     }
 

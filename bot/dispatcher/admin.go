@@ -53,7 +53,8 @@ func AdminPanelHandler(query *tgbotapi.CallbackQuery, role string, someParams ..
 			bot.AdminPanelDB)
 		bot.Send(msg)
 	case "get_logs":
-		bot.Request(tgbotapi.NewCallback(query.ID, "Логирование пока не настроено"))
+		bot.SendFile(message.Chat.ID, "data/logs/bot.log", "bot.txt", "time", false)
+		// bot.Request(tgbotapi.NewCallbackWithAlert(query.ID, "Логирование пока не настроено"))
 	case "shutdown":
 		shutdown(message)
 	case "fb":

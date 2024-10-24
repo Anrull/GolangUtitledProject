@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"awesomeProject/bot/logger"
 	"awesomeProject/pkg/env"
 	"log"
 	"os"
@@ -73,7 +74,7 @@ func SendFile(ChatID int64, filename, title, Caption string, flag ...bool) {
 
 func Logging(message *tgbotapi.Message, err error) {
 	if err != nil {
-		log.Println(err)
+		logger.Error("", err)
 		Bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Ошибка связи с db"))
 	}
 }

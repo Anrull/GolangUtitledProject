@@ -3,6 +3,7 @@ package dispatcher
 import (
 	"awesomeProject/bot"
 	"awesomeProject/bot/lexicon"
+	"awesomeProject/bot/logger"
 	"awesomeProject/data/db"
 	"fmt"
 	"log"
@@ -22,13 +23,13 @@ func Profile(message *tgbotapi.Message, q ...bool) {
 			username = lst[1]
 			id, err := db.GetChatID(username)
 			if err != nil {
-				log.Println(err)
+				logger.Error("", err)
 				bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Пользователь не найден"))
 			}
 
 			user, err = db.GetInfoAboutPerson(id)
 			if err != nil {
-				log.Println(err)
+				logger.Error("", err)
 				bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Пользователь не найден"))
 				return
 			}
@@ -53,7 +54,7 @@ func Profile(message *tgbotapi.Message, q ...bool) {
 
 	builder, err := prepareProfileText(user, username, message.Chat.ID)
 	if err != nil {
-		log.Println(err)
+		logger.Error("", err)
 		bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Ошибка подготовки данных"))
 	}
 
@@ -140,27 +141,27 @@ func HandlerProfileCallbacks(query *tgbotapi.CallbackQuery) {
 		case "white":
 			err := db.Update(query.Message.Chat.ID, "color", lexicon.ColorsToRgbConfig["white"])
 			if err != nil {
-				log.Println(err)
+				logger.Error("", err)
 			}
 		case "green":
 			err := db.Update(query.Message.Chat.ID, "color", lexicon.ColorsToRgbConfig["green"])
 			if err != nil {
-				log.Println(err)
+				logger.Error("", err)
 			}
 		case "blue":
 			err := db.Update(query.Message.Chat.ID, "color", lexicon.ColorsToRgbConfig["blue"])
 			if err != nil {
-				log.Println(err)
+				logger.Error("", err)
 			}
 		case "yellow":
 			err := db.Update(query.Message.Chat.ID, "color", lexicon.ColorsToRgbConfig["yellow"])
 			if err != nil {
-				log.Println(err)
+				logger.Error("", err)
 			}
 		case "purple":
 			err := db.Update(query.Message.Chat.ID, "color", lexicon.ColorsToRgbConfig["purple"])
 			if err != nil {
-				log.Println(err)
+				logger.Error("", err)
 			}
 		}
 		Profile(query.Message, true)

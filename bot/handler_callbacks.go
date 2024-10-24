@@ -10,7 +10,8 @@ import (
 func ChoiceBotHandler(message *tgbotapi.Message, value string) {
 	err := db.Update(message.Chat.ID, "bot", value)
 	if err != nil {
-		Send(tgbotapi.NewMessage(message.Chat.ID, "Ошибка связи с db"))
+		Logging(message, err)
+		// Send(tgbotapi.NewMessage(message.Chat.ID, "Ошибка связи с db"))
 		return
 	}
 

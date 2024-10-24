@@ -71,7 +71,7 @@ func Days(message *tgbotapi.Message) {
 func Schedule(message *tgbotapi.Message, today bool) {
 	var week string
 	role, err := db.Get(message.Chat.ID, "role")
-	logging(message, err)
+	bot.Logging(message, err)
 
 	if today {
 		week, err = timetable.GetWeek(false, true)
@@ -92,17 +92,17 @@ func Schedule(message *tgbotapi.Message, today bool) {
 		}
 
 		colors, err := db.GetColorByUserID(message.Chat.ID)
-		logging(message, err)
+		bot.Logging(message, err)
 
 		if role == "student" {
 			stage, err := db.Get(message.Chat.ID, "classes")
-			logging(message, err)
+			bot.Logging(message, err)
 
 			lessons, err := timetable.GetTimetableText(week, day, stage)
-			logging(message, err)
+			bot.Logging(message, err)
 
 			extraLessons, err := timetable.GetExtraTimetableText(week, day, stage)
-			logging(message, err)
+			bot.Logging(message, err)
 
 			lessons = timetable.Merge(lessons, extraLessons)
 
@@ -120,10 +120,10 @@ func Schedule(message *tgbotapi.Message, today bool) {
 			// }
 		} else {
 			teacher, err := db.Get(message.Chat.ID, "name_teacher")
-			logging(message, err)
+			bot.Logging(message, err)
 
 			lessons, err := timetable.GetTimetableTeachersText(teacher, week, day)
-			logging(message, err)
+			bot.Logging(message, err)
 
 			photoByte, _ = timetable.DrawTimetable(
 				lessons, fmt.Sprintf("%s, нед: %s, день: %s", teacher, lexicon.Week[week], lexicon.Day[day]),
@@ -136,7 +136,7 @@ func Schedule(message *tgbotapi.Message, today bool) {
 
 func Week(message *tgbotapi.Message, query bool) {
 	week, err := timetable.GetWeek(false, false)
-	logging(message, err)
+	bot.Logging(message, err)
 
 	if week == "н" {
 		week = "нечетная"
@@ -169,9 +169,9 @@ func SendPhotoByte(ChatID int64, photoBytes []byte) {
 	}
 }
 
-func logging(message *tgbotapi.Message, err error) {
-	if err != nil {
-		log.Println(err)
-		bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Ошибка связи с db"))
-	}
-}
+// func logging(message *tgbotapi.Message, err error) {
+// 	if err != nil {
+// 		log.Println(err)
+// 		bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Ошибка связи с db"))
+// 	}
+// }

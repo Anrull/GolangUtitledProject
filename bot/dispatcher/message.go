@@ -5,6 +5,7 @@ import (
 	"awesomeProject/bot"
 	"awesomeProject/bot/feedback"
 	"awesomeProject/bot/lexicon"
+	"awesomeProject/bot/logger"
 	"awesomeProject/data/db"
 	"os"
 
@@ -12,7 +13,6 @@ import (
 	trackerHandler "awesomeProject/bot/botTracker"
 
 	"fmt"
-	"log"
 	"regexp"
 	"slices"
 	"strconv"
@@ -45,7 +45,7 @@ func CommandsHandling(message *tgbotapi.Message) {
 	case "newsletter":
 		value, err := db.Get(message.Chat.ID, "newsletter")
 		if err != nil {
-			log.Println(err)
+			logger.Error("", err)
 			return
 		}
 
@@ -62,7 +62,7 @@ func CommandsHandling(message *tgbotapi.Message) {
 		}
 		if err != nil {
 			bot.Send(tgbotapi.NewMessage(1705933876, err.Error()))
-			log.Println(err)
+			logger.Error("", err)
 		}
 	case "my_olimps":
 		msg := tgbotapi.NewMessage(message.Chat.ID, "Выберите фильтр")
@@ -149,7 +149,7 @@ func CommandsHandling(message *tgbotapi.Message) {
 func MessageHandler(message *tgbotapi.Message) {
 	res, err := db.Get(message.Chat.ID, "temp")
 	if err != nil {
-		log.Println(err)
+		logger.Error("", err)
 	}
 	if res == "snils" {
 		re := regexp.MustCompile(message.Text)
@@ -165,6 +165,7 @@ func MessageHandler(message *tgbotapi.Message) {
 			err = db.CreateNewTrackerUser(message, name, stage)
 			_ = db.Update(message.Chat.ID, "temp", "")
 			if err != nil {
+				logger.Error("", err)
 				bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Неудалось заполнить базу данных"))
 			} else {
 				msg := tgbotapi.NewMessage(message.Chat.ID, fmt.Sprintf("Готово!\nВот некоторый функционал РСОШ Трекера\n\n%s, %s", name, stage))
@@ -189,7 +190,7 @@ func MessageHandler(message *tgbotapi.Message) {
 		msg := tgbotapi.NewMessage(message.Chat.ID, "Выберите опцию")
 		model, err := db.Get(message.Chat.ID, "bot")
 		if err != nil {
-			log.Println(err)
+			logger.Error("", err)
 		}
 		if model == "bot-schedule" {
 			sliceMessage := strings.Split(message.Text, " ")
@@ -218,7 +219,7 @@ func isValid(message *tgbotapi.Message, slice []string, num int) bool {
 					lessons, err := timetable.GetTimetableText(slice[1],
 						lexicon.DayTextToInt[slice[2]], slice[0])
 					if err != nil {
-						log.Println(err)
+						logger.Error("", err)
 						return false
 					}
 
@@ -226,16 +227,16 @@ func isValid(message *tgbotapi.Message, slice []string, num int) bool {
 						lexicon.DayTextToInt[slice[2]], slice[0])
 					
 					if err != nil {
-						log.Println(err)
+						logger.Error("", err)
 						return false
 					}
 
 					lessons = timetable.Merge(lessons, extraLessons)
 
 					image, err := timetable.DrawTimetable(lessons,
-						fmt.Sprintf("%s, нед: %s, день: %s", slice[0], slice[1], slice[2]), false, colors...)
+						fmt.Sprintf("%s, нед: %s, день: %s", slice[0], func(s string) string {if s == "0" {return "чет"}; return "нечет"}(slice[1]), slice[2]), false, colors...)
 					if err != nil {
-						log.Println(err)
+						logger.Error("", err)
 						return false
 					}
 					handler.SendPhotoByte(message.Chat.ID, image)
@@ -260,14 +261,14 @@ func isValid(message *tgbotapi.Message, slice []string, num int) bool {
 				}
 				lessons, err := timetable.GetTimetableText(week, day, slice[0])
 				if err != nil {
-					log.Println(err)
+					logger.Error("", err)
 					return false
 				}
 
 				extraLessons, err := timetable.GetExtraTimetableText(week, day, slice[0])
 				
 				if err != nil {
-					log.Println(err)
+					logger.Error("", err)
 					return false
 				}
 
@@ -277,7 +278,7 @@ func isValid(message *tgbotapi.Message, slice []string, num int) bool {
 					fmt.Sprintf("%s, нед: %s, день: %s",
 						slice[0], lexicon.Week[week], lexicon.Day[day]), false, colors...)
 				if err != nil {
-					log.Println(err)
+					logger.Error("", err)
 					return false
 				}
 				handler.SendPhotoByte(message.Chat.ID, image)
@@ -315,14 +316,14 @@ func getTracker(message *tgbotapi.Message, filenames ...string) {
 		}
 		records, err := db.GetAllRecords()
 		if err != nil {
-			log.Println(err)
+			logger.Error("", err)
 			return
 		}
 
 		xlsx := excelize.NewFile()
 		sheet, err := xlsx.NewSheet("Sheet1")
 		if err != nil {
-			log.Println(err)
+			logger.Error("", err)
 			return
 		}
 		xlsx.SetActiveSheet(sheet)
@@ -341,7 +342,7 @@ func getTracker(message *tgbotapi.Message, filenames ...string) {
 
 		err = xlsx.SaveAs(filename)
 		if err != nil {
-			log.Println(err)
+			logger.Error("", err)
 			return
 		}
 

@@ -17,11 +17,11 @@ import (
 func SubjectsCallbacksHandler(message *tgbotapi.Message, method, index string) {
 	if method == "add" {
 		i, err := strconv.Atoi(index)
-		logging(message, err)
+		bot.Logging(message, err)
 		value := lexicon.SubjectsForButton[i]
 		err = db.AddTracker(message, "olimps", value)
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 
@@ -39,13 +39,13 @@ func SubjectsCallbacksHandler(message *tgbotapi.Message, method, index string) {
 	}
 	if method == "someget" {
 		i, err := strconv.Atoi(index)
-		logging(message, err)
+		bot.Logging(message, err)
 		value := "sub||nil"
 		if i != 999 {
 			value = "sub||" + lexicon.SubjectsForButton[i]
 		}
 		err = db.AddTracker(message, "filter", value)
-		logging(message, err)
+		bot.Logging(message, err)
 		will := bot.CopyInlineKeyboard(callbacks.SomeGetBuilderOlimpsKeyboard)
 		will.InlineKeyboard = will.InlineKeyboard[:lexicon.OlimpListStep]
 		will.InlineKeyboard = append(will.InlineKeyboard, tgbotapi.NewInlineKeyboardRow(
@@ -60,18 +60,18 @@ func SubjectsCallbacksHandler(message *tgbotapi.Message, method, index string) {
 	}
 	if method == "get" {
 		i, err := strconv.Atoi(index)
-		logging(message, err)
+		bot.Logging(message, err)
 		sub := lexicon.SubjectsForButton[i]
 		name, err := db.GetTracker(message, "name")
 		err = db.AddTracker(message, "get_olimps",
 			fmt.Sprintf("sub||%s;;olimp||nil;;stage||nil;;teacher||nil", sub))
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		records, err := db.GetRecords(name, sub, "nil", "nil", "nil")
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		sendOlimps(message, name, records)
@@ -82,9 +82,9 @@ func OlimpsCallbacksHandler(message *tgbotapi.Message, status, spifMin, spifMax,
 	step := lexicon.OlimpListStep
 	if status == "nil" {
 		spif, err := strconv.Atoi(spifMin)
-		logging(message, err)
+		bot.Logging(message, err)
 		spifMax, err := strconv.Atoi(spifMax)
-		logging(message, err)
+		bot.Logging(message, err)
 		spif_ := 0
 		if role == "min" {
 			if !(spif-step < 0) {
@@ -124,11 +124,11 @@ func OlimpsCallbacksHandler(message *tgbotapi.Message, status, spifMin, spifMax,
 	}
 	if method == "add" {
 		index, err := strconv.Atoi(status)
-		logging(message, err)
+		bot.Logging(message, err)
 		olimp := lexicon.TrackerOlimps[index]
 		err = db.AddTracker(message, "olimps", olimp)
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Выберите достигнутый этап", callbacks.BuilderStageKeyboards)
@@ -137,14 +137,14 @@ func OlimpsCallbacksHandler(message *tgbotapi.Message, status, spifMin, spifMax,
 	}
 	if method == "someget" {
 		index, err := strconv.Atoi(status)
-		logging(message, err)
+		bot.Logging(message, err)
 		olimp := "olimp||nil"
 		if index != 999 {
 			olimp = "olimp||" + lexicon.TrackerOlimps[index]
 		}
 		err = db.AddTracker(message, "filter", olimp)
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		msg := tgbotapi.NewEditMessageReplyMarkup(message.Chat.ID, message.MessageID, callbacks.SomeGetBuilderStageKeyboards)
@@ -153,18 +153,18 @@ func OlimpsCallbacksHandler(message *tgbotapi.Message, status, spifMin, spifMax,
 	}
 	if method == "get" {
 		index, err := strconv.Atoi(status)
-		logging(message, err)
+		bot.Logging(message, err)
 		olimp := lexicon.TrackerOlimps[index]
 		name, err := db.GetTracker(message, "name")
 		err = db.AddTracker(message, "get_olimps",
 			fmt.Sprintf("sub||nil;;olimp||%s;;stage||nil;;teacher||nil", olimp))
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		records, err := db.GetRecords(name, "nil", olimp, "nil", "nil")
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		sendOlimps(message, name, records)
@@ -174,11 +174,11 @@ func OlimpsCallbacksHandler(message *tgbotapi.Message, status, spifMin, spifMax,
 func StageCallbacksHandler(message *tgbotapi.Message, method, index string) {
 	if method == "add" {
 		i, err := strconv.Atoi(index)
-		logging(message, err)
+		bot.Logging(message, err)
 		value := lexicon.StagesTracker[i]
 		err = db.AddTracker(message, "olimps", value)
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, "Выберите наставника", callbacks.BuilderTeacherKeyboards)
@@ -187,14 +187,14 @@ func StageCallbacksHandler(message *tgbotapi.Message, method, index string) {
 	}
 	if method == "someget" {
 		i, err := strconv.Atoi(index)
-		logging(message, err)
+		bot.Logging(message, err)
 		value := "stage||nil"
 		if i != 999 {
 			value = "stage||" + lexicon.StagesTracker[i]
 		}
 		err = db.AddTracker(message, "filter", value)
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		msg := tgbotapi.NewEditMessageReplyMarkup(message.Chat.ID, message.MessageID, callbacks.SomeGetBuilderTeacherKeyboards)
@@ -203,18 +203,18 @@ func StageCallbacksHandler(message *tgbotapi.Message, method, index string) {
 	}
 	if method == "get" {
 		i, err := strconv.Atoi(index)
-		logging(message, err)
+		bot.Logging(message, err)
 		stage := lexicon.StagesTracker[i]
 		name, err := db.GetTracker(message, "name")
 		err = db.AddTracker(message, "get_olimps",
 			fmt.Sprintf("sub||nil;;olimp||nil;;stage||%s;;teacher||nil", stage))
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		records, err := db.GetRecords(name, "nil", "nil", stage, "nil")
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		sendOlimps(message, name, records)
@@ -224,11 +224,11 @@ func StageCallbacksHandler(message *tgbotapi.Message, method, index string) {
 func TeachersCallbacksHandler(message *tgbotapi.Message, method, index string) {
 	if method == "add" {
 		i, err := strconv.Atoi(index)
-		logging(message, err)
+		bot.Logging(message, err)
 		value := lexicon.TeacherTracker[i]
 		err = db.AddTracker(message, "olimps", value)
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		textSlice, err := db.GetTracker(message, "olimps")
@@ -243,18 +243,18 @@ func TeachersCallbacksHandler(message *tgbotapi.Message, method, index string) {
 	}
 	if method == "get" {
 		i, err := strconv.Atoi(index)
-		logging(message, err)
+		bot.Logging(message, err)
 		teacher := lexicon.TeacherTracker[i]
 		name, err := db.GetTracker(message, "name")
 		err = db.AddTracker(message, "get_olimps",
 			fmt.Sprintf("sub||nil;;olimp||nil;;stage||nil;;teacher||%s", teacher))
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		records, err := db.GetRecords(name, "nil", "nil", "nil", teacher)
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		sendOlimps(message, name, records)
@@ -262,14 +262,14 @@ func TeachersCallbacksHandler(message *tgbotapi.Message, method, index string) {
 	}
 	if method == "someget" {
 		i, err := strconv.Atoi(index)
-		logging(message, err)
+		bot.Logging(message, err)
 		value := "teacher||nil"
 		if i != 999 {
 			value = "teacher||" + lexicon.TeacherTracker[i]
 		}
 		err = db.AddTracker(message, "filter", value)
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		textSlice, err := db.GetTracker(message, "filter")
@@ -282,12 +282,12 @@ func TeachersCallbacksHandler(message *tgbotapi.Message, method, index string) {
 
 		name, err := db.GetTracker(message, "name")
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		records, err := db.GetRecords(name, sub, olimp, stage, teacher)
 		if err != nil {
-			logging(message, err)
+			bot.Logging(message, err)
 			return
 		}
 		sendOlimps(message, name, records)
@@ -299,12 +299,12 @@ func WithoutFiltersCallbacksHandler(message *tgbotapi.Message) {
 	err := db.AddTracker(message, "get_olimps",
 		"sub||nil;;olimp||nil;;stage||nil;;teacher||nil")
 	if err != nil {
-		logging(message, err)
+		bot.Logging(message, err)
 		return
 	}
 	records, err := db.GetRecords(name, "nil", "nil", "nil", "nil")
 	if err != nil {
-		logging(message, err)
+		bot.Logging(message, err)
 		return
 	}
 	sendOlimps(message, name, records)

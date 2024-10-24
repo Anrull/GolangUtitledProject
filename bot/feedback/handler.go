@@ -2,9 +2,10 @@ package feedback
 
 import (
 	"awesomeProject/bot"
+	"awesomeProject/bot/logger"
 	"awesomeProject/data/db"
+
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"log"
 )
 
 func Handler(message *tgbotapi.Message, params ...string) {
@@ -17,7 +18,7 @@ func Handler(message *tgbotapi.Message, params ...string) {
 	sub, err := db.GetTempFbNameByID(params[2])
 	if err != nil {
 		bot.Send(tgbotapi.NewDeleteMessage(message.Chat.ID, message.MessageID))
-		log.Println("Error in getTempFbNameByID", err)
+		logger.Error("Error in getTempFbNameByID", err)
 		return
 	}
 	date := params[3]
@@ -31,7 +32,7 @@ func Handler(message *tgbotapi.Message, params ...string) {
 	}
 	err = db.CreateFBLessons(message.Chat.ID, userName, stage, sub, date, role)
 	if err != nil {
-		log.Println("Ошибка заполнения бд (feedback)", err)
+		logger.Error("Ошибка заполнения бд (feedback)", err)
 		return
 	}
 	msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID,

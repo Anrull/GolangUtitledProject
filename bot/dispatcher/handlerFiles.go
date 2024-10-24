@@ -2,6 +2,7 @@ package dispatcher
 
 import (
 	"awesomeProject/bot"
+	"awesomeProject/bot/logger"
 	"awesomeProject/data/db"
 	"fmt"
 	"io"
@@ -26,7 +27,7 @@ func FileHandler(message *tgbotapi.Message) {
 			getTracker(message, "data/AllRecords.xlsx")
 			err := db.DeleteAllRecords()
 			if err != nil {
-				log.Println(err)
+				logger.Error("", err)
 				return
 			}
 		} else {
@@ -34,14 +35,14 @@ func FileHandler(message *tgbotapi.Message) {
 		}
 		msg, err := bot.Bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Обновляем"))
 		if err != nil {
-			log.Println(err)
+			logger.Error("", err)
 			return
 		}
 		// Define the path where the document will be downloaded
 		downloadPath := "data/temp/download/" + document.FileName
 		err = downloadFile(downloadPath, document)
 		if err != nil {
-			log.Println(err)
+			logger.Error("", err)
 			return
 		}
 		defer os.Remove(downloadPath)
@@ -50,7 +51,7 @@ func FileHandler(message *tgbotapi.Message) {
 
 		f, err := excelize.OpenFile(downloadPath)
 		if err != nil {
-			log.Println(err)
+			logger.Error("", err)
 			return
 		}
 		defer f.Close()
@@ -58,7 +59,7 @@ func FileHandler(message *tgbotapi.Message) {
 		// Получаем список строк в первом листе
 		rows, err := f.GetRows("Sheet1")
 		if err != nil {
-			log.Println(err)
+			logger.Error("", err)
 			return
 		}
 		var startIndex = 0
@@ -83,7 +84,8 @@ func FileHandler(message *tgbotapi.Message) {
 
 			err = db.AddRecord(name, class, olimp, subject, teacher, stage, date)
 			if err != nil {
-				log.Println("Error add record: ", err)
+				logger.Error("Error add record: ", err)
+				return
 			}
 		}
 		bot.Send(tgbotapi.NewEditMessageText(message.Chat.ID, msg.MessageID, "Обновлено"))
@@ -94,28 +96,27 @@ func downloadFile(path string, document *tgbotapi.Document) error {
 	// Create a new file in the specified path
 	file, err := os.Create(path)
 	if err != nil {
-		return fmt.Errorf("Error creating file:", err)
-
+		return fmt.Errorf("error creating file: %e", err)
 	}
 	defer file.Close()
 
 	// Get the file from the Telegram API
 	fileBytes, err := bot.Bot.GetFileDirectURL(document.FileID)
 	if err != nil {
-		return fmt.Errorf("Error getting file URL:", err)
+		return fmt.Errorf("error getting file URL: %e", err)
 	}
 
 	// Download the file
 	resp, err := http.Get(fileBytes)
 	if err != nil {
-		return fmt.Errorf("Error downloading file:", err)
+		return fmt.Errorf("error downloading file: %e", err)
 	}
 	defer resp.Body.Close()
 
 	// Write the file to disk
 	_, err = io.Copy(file, resp.Body)
 	if err != nil {
-		return fmt.Errorf("Error saving file:", err)
+		return fmt.Errorf("error saving file: %e", err)
 	}
 
 	return nil
