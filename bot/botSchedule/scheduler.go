@@ -41,15 +41,30 @@ func TasksSchedule() {
 	for _, user := range users {
 		var photoByte []byte
 
-		role, _ := db.Get(user.UserID, "role")
-		week, _ := timetable.GetWeek(false, true)
+		role, err := db.Get(user.UserID, "role")
+		if err != nil {
+			continue
+		}
+		week, err := timetable.GetWeek(false, true)
+		if err != nil {
+			continue
+		}
 		day := timetable.GetDayTomorrow()
 
-		colors, _ := db.GetColorByUserID(user.UserID)
+		colors, err := db.GetColorByUserID(user.UserID)
+		if err != nil {
+			continue
+		}
 
 		if role == "student" {
-			stage, _ := db.Get(user.UserID, "classes")
-			lessons, _ := timetable.GetTimetableText(week, day, stage)
+			stage, err := db.Get(user.UserID, "classes")
+			if err != nil {
+				continue
+			}
+			lessons, err := timetable.GetTimetableText(week, day, stage)
+			if err != nil {
+				continue
+			}
 			
 			extraLessons, _ := timetable.GetExtraTimetableText(week, day, stage)
 
@@ -63,18 +78,30 @@ func TasksSchedule() {
 			// 	defer SendPhotoByte(user.UserID, extraPhotoByte)
 			// }
 
-			photoByte, _ = timetable.DrawTimetable(
+			photoByte, err = timetable.DrawTimetable(
 				lessons, fmt.Sprintf("%s, нед: %s, день: %s",
 					stage, lexicon.Week[week], lexicon.Day[day]),
 				false, colors...)
+			if err != nil {
+				continue
+			}
 		} else {
-			teacher, _ := db.Get(user.UserID, "name_teacher")
-			lessons, _ := timetable.GetTimetableTeachersText(teacher, week, day)
+			teacher, err := db.Get(user.UserID, "name_teacher")
+			if err != nil {
+				continue
+			}
+			lessons, err := timetable.GetTimetableTeachersText(teacher, week, day)
+			if err != nil {
+				continue
+			}
 
-			photoByte, _ = timetable.DrawTimetable(
+			photoByte, err = timetable.DrawTimetable(
 				lessons, fmt.Sprintf("%s, нед: %s, день: %s", teacher,
 					lexicon.Week[week], lexicon.Day[day]),
 				true, colors...)
+			if err != nil {
+				continue
+			}
 		}
 
 		SendPhotoByte(user.UserID, photoByte)
