@@ -143,7 +143,7 @@ func MenuCallbackQuery(query *tgbotapi.CallbackQuery, lstQ []string) {
 				return
 			}
 			text := fmt.Sprintf(
-				"Имя: %s\nКласс: %s\n\n<a href=\"%s/?fullname=%s\">Ссылка для заполнения</a>", 
+				"Имя: %s\nКласс: %s\n\n<a href=\"%s/add_record?fullname=%s\">Ссылка для заполнения</a>", 
 				name, stage, lexicon.Link, snils)
 			msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, text, bot.BuilderEscape)
 			msg.ParseMode = tgbotapi.ModeHTML

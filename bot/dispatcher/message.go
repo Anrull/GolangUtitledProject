@@ -7,11 +7,11 @@ import (
 	"awesomeProject/bot/lexicon"
 	"awesomeProject/bot/logger"
 	"awesomeProject/data/db"
-	"os"
 
 	handler "awesomeProject/bot/botSchedule"
 	trackerHandler "awesomeProject/bot/botTracker"
 
+	"os"
 	"fmt"
 	"regexp"
 	"slices"
