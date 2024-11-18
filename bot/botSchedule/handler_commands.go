@@ -21,12 +21,15 @@ func Start(message *tgbotapi.Message) {
 		return
 	}
 
-	msg := tgbotapi.NewMessage(message.Chat.ID,
-		"Выберите бота\n\n<b><em>Бот-Расписание</em></b> позволяет просматривать расписание\n\n<b><em>Бот-Трекер</em></b> позволяет добавлять и отслеживать свой прогресс в РСОШ олимпиадах")
-	msg.ReplyMarkup = callbacks.BuilderChoiceBot
-	msg.ParseMode = tgbotapi.ModeHTML
+	text := "Выберите бота\n\n<b><em>Бот-Расписание</em></b> позволяет просматривать расписание\n\n<b><em>Бот-Трекер</em></b> позволяет добавлять и отслеживать свой прогресс в РСОШ олимпиадах"
 
-	bot.Send(msg)
+	// msg := tgbotapi.NewMessage(message.Chat.ID, text)
+	// msg.ReplyMarkup = callbacks.BuilderChoiceBot
+	// msg.ParseMode = tgbotapi.ModeHTML
+
+	// bot.Send(msg)
+
+	bot.TelegoSendWithKeyboard(message.Chat.ID, text, bot.ModeHTML, callbacks.BuilderChoiceBotWithMiniApp)
 }
 
 func DeleteMe(message *tgbotapi.Message) {

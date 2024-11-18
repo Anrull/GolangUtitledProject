@@ -1,9 +1,6 @@
 package bot
 
 import (
-	"awesomeProject/bot/lexicon"
-	"fmt"
-
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -156,11 +153,11 @@ var MenuScheduleOtherBotKeyboard = tgbotapi.NewInlineKeyboardMarkup(
 var BuilderMenuTracker = tgbotapi.NewInlineKeyboardMarkup(
 	tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData(
-			"Добавить запись", "menu;tracker;Добавить запись",
+			"Добавить запись (tg)", "menu;tracker;Добавить запись",
 		)),
 	tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData(
-			"Добавить онлайн", "menu;tracker;add_online",
+			"Добавить запись онлайн", "menu;tracker;add_online",
 		)),
 	tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData(
@@ -183,8 +180,8 @@ var BuilderEscape = tgbotapi.NewInlineKeyboardMarkup(
 
 var BuilderChoiceTrackerFilter = tgbotapi.NewInlineKeyboardMarkup(
 	tgbotapi.NewInlineKeyboardRow(
-		tgbotapi.NewInlineKeyboardButtonURL(
-			"Онлайн", fmt.Sprintf("%s/olympiads", lexicon.Link),
+		tgbotapi.NewInlineKeyboardButtonData(
+			"Онлайн", "menu;filter;online",
 		)),
 	tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData(

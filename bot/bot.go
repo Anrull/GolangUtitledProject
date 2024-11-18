@@ -8,10 +8,18 @@ import (
 	"time"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/mymmrac/telego"
 )
 
 var Bot, _ = tgbotapi.NewBotAPI(env.GetValue("TOKEN"))
+var BotTelego, _ = telego.NewBot(env.GetValue("TOKEN"))
 var TechnicalWork bool
+
+const (
+	ModeHTML       = "HTML"
+	ModeMarkdown   = "Markdown"
+	ModeMarkdownV2 = "MarkdownV2"
+)
 
 func init() {
 	TechnicalWork = false
@@ -76,5 +84,89 @@ func Logging(message *tgbotapi.Message, err error) {
 	if err != nil {
 		logger.Error("", err)
 		Bot.Send(tgbotapi.NewMessage(message.Chat.ID, "Ошибка связи с db"))
+	}
+}
+
+
+func SendMiniApp(ChatID int64, textButton, textMessage, url, escapeText, escapeData, parseMode string, messageIds ...int) {
+	button := telego.InlineKeyboardButton{
+		Text:   textButton,                    // Текст кнопки
+		WebApp: &telego.WebAppInfo{URL: url}, // URL вашего Mini App
+	}
+
+	buttonEscape := telego.InlineKeyboardButton{
+		Text:         escapeText,
+		CallbackData: escapeData,
+	}
+
+	keyboard := telego.InlineKeyboardMarkup{
+		InlineKeyboard: [][]telego.InlineKeyboardButton{
+			{button}, // Добавляем кнопку
+		},
+	}
+	
+	if escapeData != "nil" {
+		keyboard.InlineKeyboard = append(keyboard.InlineKeyboard, []telego.InlineKeyboardButton{buttonEscape})
+	}
+	if len(messageIds) > 0 {
+		editMsg := telego.EditMessageTextParams{
+			ChatID:    telego.ChatID{ID: ChatID},
+			MessageID: messageIds[0],
+			Text:      textMessage,
+			ParseMode: parseMode,
+			ReplyMarkup: &keyboard,
+		}
+		_, err := BotTelego.EditMessageText(&editMsg)
+
+		if err != nil {
+			log.Println(err)
+		}
+		return
+	}
+	// Отправляем сообщение с кнопкой
+	params := telego.SendMessageParams{
+		ChatID:    telego.ChatID{ID: ChatID},
+		Text:      textMessage,
+		ParseMode: parseMode,
+		ReplyMarkup: &keyboard,
+	}
+	_, err := BotTelego.SendMessage(&params)
+
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+func TelegoSendWithKeyboard(ChatID int64, text, parseMode string, buttons telego.InlineKeyboardMarkup, messageIds ...int) {
+	if len(messageIds) > 0 {
+		editMsg := telego.EditMessageTextParams{
+			ChatID:    telego.ChatID{ID: ChatID},
+			MessageID: messageIds[0],
+			Text:      text,
+			ParseMode: parseMode,
+		}
+		if buttons.InlineKeyboard != nil {
+			editMsg.ReplyMarkup = &buttons
+		}
+		_, err := BotTelego.EditMessageText(&editMsg)
+
+		if err != nil {
+			log.Println(err)
+		}
+		return
+	}
+	// Отправляем сообщение с кнопкой
+	params := telego.SendMessageParams{
+		ChatID:    telego.ChatID{ID: ChatID},
+		Text:      text,
+		ParseMode: parseMode,
+	}
+	if buttons.InlineKeyboard != nil {
+		params.ReplyMarkup = &buttons
+	}
+	_, err := BotTelego.SendMessage(&params)
+
+	if err != nil {
+		log.Println(err)
 	}
 }

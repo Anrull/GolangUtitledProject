@@ -79,6 +79,11 @@ func MenuCallbackQuery(query *tgbotapi.CallbackQuery, lstQ []string) {
 		}
 	} else if lstQ[1] == "filter" {
 		switch lstQ[2] {
+		case "online":
+			link := fmt.Sprintf("%s/olympiads", lexicon.Link)
+			text := fmt.Sprintf("Ссылка на просмотр РСОШ.Трекера\n\n\n<a href=\"%s\">Ссылка</a>", link)
+			// menu;tracker;Просмотр записей
+			bot.SendMiniApp(message.Chat.ID, "Смотреть", text, link, "Назад", "menu;tracker;Просмотр записей", bot.ModeHTML, message.MessageID)
 		case "Без фильтров":
 			trackerHandler.WithoutFiltersCallbacksHandler(message)
 		case "Несколько фильтров":
@@ -142,12 +147,14 @@ func MenuCallbackQuery(query *tgbotapi.CallbackQuery, lstQ []string) {
 				bot.Logging(message, err)
 				return
 			}
+			link := fmt.Sprintf("%s/add_record?fullname=%s", lexicon.Link, snils)
 			text := fmt.Sprintf(
-				"Имя: %s\nКласс: %s\n\n<a href=\"%s/add_record?fullname=%s\">Ссылка для заполнения</a>", 
-				name, stage, lexicon.Link, snils)
-			msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, text, bot.BuilderEscape)
-			msg.ParseMode = tgbotapi.ModeHTML
-			bot.Send(msg)
+				"Имя: %s\nКласс: %s\n\n<a href=\"%s\">Ссылка для заполнения</a>", 
+				name, stage, link)
+			// msg := tgbotapi.NewEditMessageTextAndMarkup(message.Chat.ID, message.MessageID, text, bot.BuilderEscape)
+			// msg.ParseMode = tgbotapi.ModeHTML
+			// bot.Send(msg)
+			bot.SendMiniApp(message.Chat.ID, "Добавить запись", text, link, "Назад", "menu;filter;Назад", bot.ModeHTML, message.MessageID)
 		case "Добавить запись":
 			trackerHandler.AddRecord(message, true)
 		case "Просмотр записей":
